@@ -6,6 +6,8 @@ Pour suivre les étapes détaillées avec les vérifications et les solutions au
 
 Après la découverte de Laravel, suivez le [TD sur les documents, les migrations et le modèle](TD-Documents-Migration-Modele.md) depuis la branche `jour2-decouverte-laravel`.
 
+Pour construire ensuite les routes et le contrôleur de l'API, suivez le [TD API CRUD des documents](TD-API-CRUD-Documents.md) sur la branche `jour2-postgresql-migrations-modeles`.
+
 ## Prérequis
 
 - Docker Desktop avec le moteur de conteneurs Linux et Docker Compose ; sous Windows, WSL 2 doit être fonctionnel.
