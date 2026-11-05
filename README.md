@@ -1,6 +1,6 @@
 # Application Laravel et PostgreSQL
 
-Projet du jour 2 pour le fil rouge de gestion de documents. Il contient une application Laravel 13, son environnement Docker et une première route d'exercice. Le CRUD et l'interface reliée à la base seront construits pendant la formation.
+Projet du jour 2 pour le fil rouge de gestion de documents. Il contient une application Laravel 13, son environnement Docker, une première route d'exercice, ainsi que la migration et le modèle des documents. Le CRUD et l'interface reliée à la base seront construits pendant la formation.
 
 Pour suivre les étapes détaillées avec les vérifications et les solutions aux problèmes courants, consultez le [guide de travaux dirigés](TD-Demarrage-Docker.md).
 
@@ -54,11 +54,24 @@ docker compose exec app php artisan route:list --path=api
 
 Dans le réseau Docker, Laravel se connecte à PostgreSQL grâce au nom de service `db` sur le port interne 5432. PostgreSQL n'est pas exposé sur un port Windows. Le volume Docker `postgres_data` conserve ses données après un arrêt ou une recréation ordinaire des conteneurs.
 
+La migration `create_documents_table` décrit une table avec :
+
+- `id` : identifiant du document ;
+- `title` : titre, 100 caractères maximum ;
+- `category` : catégorie, 50 caractères maximum ;
+- `created_at` et `updated_at` : dates gérées par Eloquent.
+
+Le modèle `App\Models\Document` représente cette table et autorise l'affectation de `title` et `category`. Ces champs décrivent les informations du document ; le fichier lui-même n'est pas encore téléversé ou stocké. Les vérifications des données envoyées à l'API seront préparées avec le CRUD.
+
 Les migrations ne sont pas exécutées automatiquement pour permettre de les découvrir pendant le cours. Après leur présentation, lancez :
 
 ```bash
 docker compose exec app php artisan migrate
 ```
+
+Cette commande exécute toutes les migrations en attente, y compris celles fournies par défaut avec Laravel. Elle ne doit être lancée qu'au moment prévu par le formateur. Un retour arrière peut supprimer des tables et leurs données : ne lancez pas `migrate:rollback` sans en comprendre les effets.
+
+Le test `DocumentPersistenceTest` vérifie la migration et le modèle dans une base SQLite temporaire en mémoire. Il ne crée pas les tables dans la base PostgreSQL de formation.
 
 ## Commandes utiles
 
