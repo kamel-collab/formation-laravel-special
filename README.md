@@ -4,6 +4,8 @@ Projet du jour 2 pour le fil rouge de gestion de documents. Il contient une appl
 
 Pour suivre les étapes détaillées avec les vérifications et les solutions aux problèmes courants, consultez le [guide de travaux dirigés](TD-Demarrage-Docker.md).
 
+Après la découverte de Laravel, suivez le [TD sur les documents, les migrations et le modèle](TD-Documents-Migration-Modele.md) depuis la branche `jour2-decouverte-laravel`.
+
 ## Prérequis
 
 - Docker Desktop avec le moteur de conteneurs Linux et Docker Compose ; sous Windows, WSL 2 doit être fonctionnel.
