@@ -1,6 +1,6 @@
 # Application Laravel et PostgreSQL
 
-Projet du jour 2 pour le fil rouge de gestion de documents. Il contient une application Laravel 13, son environnement Docker, une première route d'exercice, ainsi que la migration et le modèle des documents. Le CRUD et l'interface reliée à la base seront construits pendant la formation.
+Projet du jour 2 pour le fil rouge de gestion de documents. Il contient une application Laravel 13, son environnement Docker, le modèle et la migration des documents ainsi que l'API CRUD. L'interface reliée à l'API sera construite ensuite.
 
 Pour suivre les étapes détaillées avec les vérifications et les solutions aux problèmes courants, consultez le [guide de travaux dirigés](TD-Demarrage-Docker.md).
 
@@ -63,7 +63,7 @@ La migration `create_documents_table` décrit une table avec :
 - `category` : catégorie, 50 caractères maximum ;
 - `created_at` et `updated_at` : dates gérées par Eloquent.
 
-Le modèle `App\Models\Document` représente cette table et autorise l'affectation de `title` et `category`. Ces champs décrivent les informations du document ; le fichier lui-même n'est pas encore téléversé ou stocké. Les vérifications des données envoyées à l'API seront préparées avec le CRUD.
+Le modèle `App\Models\Document` représente cette table et autorise l'affectation de `title` et `category`. Ces champs décrivent les informations du document ; le fichier lui-même n'est pas encore téléversé ou stocké.
 
 Les migrations ne sont pas exécutées automatiquement pour permettre de les découvrir pendant le cours. Après leur présentation, lancez :
 
@@ -74,6 +74,10 @@ docker compose exec app php artisan migrate
 Cette commande exécute toutes les migrations en attente, y compris celles fournies par défaut avec Laravel. Elle ne doit être lancée qu'au moment prévu par le formateur. Un retour arrière peut supprimer des tables et leurs données : ne lancez pas `migrate:rollback` sans en comprendre les effets.
 
 Le test `DocumentPersistenceTest` vérifie la migration et le modèle dans une base SQLite temporaire en mémoire. Il ne crée pas les tables dans la base PostgreSQL de formation.
+
+## API des documents
+
+Après l'exécution des migrations, les routes `/api/documents` permettent de lister et créer des documents et les routes `/api/documents/{document}` permettent de les consulter, modifier et supprimer. La création et la modification valident `title` et `category`. Envoyez l'en-tête `Accept: application/json` pour obtenir les erreurs de validation en JSON. Le guide du TD explique les requêtes et leurs résultats.
 
 ## Commandes utiles
 
@@ -96,4 +100,4 @@ docker compose up -d
 - `.env.example` : modèle de configuration locale.
 - `routes/`, `app/` et `database/migrations/` : routes, code PHP et migrations étudiés au jour 2.
 
-La page affichée au départ est celle de Laravel. La route JSON fournit uniquement un exemple fictif : il n'y a pas encore de CRUD ni de téléversement de fichiers.
+La page affichée au départ est celle de Laravel. La route `/api/exemples/document` fournit un exemple fictif ; l'API CRUD utilise la base. Le téléversement de fichiers n'est pas encore implémenté.
