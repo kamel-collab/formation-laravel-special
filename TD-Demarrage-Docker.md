@@ -14,7 +14,7 @@ Le premier démarrage peut prendre plusieurs minutes : les images Docker et les 
 
 Les commandes suivantes s'exécutent dans un terminal PowerShell ou WSL. Elles utilisent les conteneurs pour PHP, Composer et PostgreSQL : vous n'avez pas besoin d'installer ces outils séparément sur Windows.
 
-> **Pour le formateur :** l'adresse du dépôt et la branche `starter` restent à préparer. Remplacez `URL_DU_DEPOT` ci-dessous par l'adresse fournie aux participants. Les chemins supposent que le dépôt conserve l'arborescence de ce projet et contient `apps/app-laravel-postgresql`.
+> **Pour le formateur :** la branche `starter` existe dans le dépôt Git local du projet Laravel. Remplacez `URL_DU_DEPOT` ci-dessous par l'adresse du dépôt fournie aux participants. Le dépôt contient directement le projet Laravel.
 
 ## Étape 1 Vérifier Docker et Git
 
@@ -33,18 +33,18 @@ docker compose version
 Dans le dossier où vous souhaitez placer la formation, exécutez la commande communiquée par le formateur. Le modèle prévu est :
 
 ```bash
-git clone --branch starter URL_DU_DEPOT formation-developpement-web
+git clone --branch starter URL_DU_DEPOT app-laravel-postgresql
 ```
 
 Remplacez `URL_DU_DEPOT` par l'adresse réelle. Ne tapez pas le texte `URL_DU_DEPOT` tel quel. Si le projet vous a déjà été fourni dans un dossier, utilisez ce dossier et passez à l'étape 3.
 
-La commande crée un dossier `formation-developpement-web` contenant la branche `starter` du dépôt. Pour entrer dans l'application Laravel :
+La commande crée un dossier `app-laravel-postgresql` contenant la branche `starter` du dépôt. Pour entrer dans l'application Laravel :
 
 ```bash
-cd formation-developpement-web/apps/app-laravel-postgresql
+cd app-laravel-postgresql
 ```
 
-Si vous avez reçu le projet autrement, adaptez seulement le début du chemin pour atteindre le dossier `apps/app-laravel-postgresql`.
+Si vous avez reçu le projet autrement, ouvrez directement le dossier `app-laravel-postgresql` qui contient les fichiers de l'application.
 
 **À vérifier :** le dossier courant contient notamment `compose.yaml`, `Dockerfile`, `artisan` et `.env.example`. Dans PowerShell, utilisez `Get-ChildItem -Force` ; dans WSL, utilisez `ls -la`.
 
@@ -141,7 +141,7 @@ Puis ouvrez à nouveau [http://localhost:8088](http://localhost:8088). Les donn�
 | Situation | Vérification |
 | --- | --- |
 | Docker indique qu'il ne peut pas joindre le moteur | Démarrez Docker Desktop, attendez qu'il soit prêt, puis réessayez. |
-| La commande ne trouve pas `compose.yaml` | Placez-vous dans `apps/app-laravel-postgresql`, puis réessayez. |
+| La commande ne trouve pas `compose.yaml` | Placez-vous dans le dossier du projet `app-laravel-postgresql`, puis réessayez. |
 | Le port 8088 est déjà utilisé | Prévenez le formateur pour identifier le programme concerné et choisir la solution adaptée. |
 | L'installation Composer échoue lors d'un téléchargement | Vérifiez avec le formateur l'accès réseau ou la préparation hors ligne, puis relancez `docker compose exec app composer install`. |
 | Le navigateur n'affiche pas Laravel | Vérifiez `docker compose ps`, puis consultez `docker compose logs --tail 30 app`. Assurez-vous que les étapes 4 et 5 sont terminées. |
