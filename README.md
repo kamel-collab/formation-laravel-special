@@ -15,6 +15,17 @@ PHP, Composer et PostgreSQL sont exécutés dans Docker. Ils n'ont pas besoin d'
 
 Laravel Boost est inclus comme dépendance de développement conformément aux instructions `AGENTS.md` générées par Laravel. Il n'est pas nécessaire pour les exercices du jour 2.
 
+## Cloner le projet
+
+Dans le dossier où vous souhaitez placer le projet :
+
+```bash
+git clone --branch starter https://github.com/kamel-collab/formation-laravel-special.git app-laravel-postgresql
+cd app-laravel-postgresql
+```
+
+Le dépôt est public et la branche `starter` est le point de départ de la formation. Si le projet est déjà présent sur votre poste, ouvrez son dossier au lieu de le cloner à nouveau.
+
 ## Premier démarrage après clonage
 
 Dans un terminal ouvert dans ce dossier :
