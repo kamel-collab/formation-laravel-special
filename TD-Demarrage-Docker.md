@@ -14,7 +14,7 @@ Le premier démarrage peut prendre plusieurs minutes : les images Docker et les 
 
 Les commandes suivantes s'exécutent dans un terminal PowerShell ou WSL. Elles utilisent les conteneurs pour PHP, Composer et PostgreSQL : vous n'avez pas besoin d'installer ces outils séparément sur Windows.
 
-> **Pour le formateur :** la branche `starter` existe dans le dépôt Git local du projet Laravel. Remplacez `URL_DU_DEPOT` ci-dessous par l'adresse du dépôt fournie aux participants. Le dépôt contient directement le projet Laravel.
+Le projet est disponible dans le dépôt public [formation-laravel-special](https://github.com/kamel-collab/formation-laravel-special). La branche `starter` contient le point de départ de la formation.
 
 ## Étape 1 Vérifier Docker et Git
 
@@ -30,13 +30,13 @@ docker compose version
 
 ## Étape 2 Récupérer le projet
 
-Dans le dossier où vous souhaitez placer la formation, exécutez la commande communiquée par le formateur. Le modèle prévu est :
+Dans le dossier où vous souhaitez placer la formation, copiez et exécutez :
 
 ```bash
-git clone --branch starter URL_DU_DEPOT app-laravel-postgresql
+git clone --branch starter https://github.com/kamel-collab/formation-laravel-special.git app-laravel-postgresql
 ```
 
-Remplacez `URL_DU_DEPOT` par l'adresse réelle. Ne tapez pas le texte `URL_DU_DEPOT` tel quel. Si le projet vous a déjà été fourni dans un dossier, utilisez ce dossier et passez à l'étape 3.
+Si le projet vous a déjà été fourni dans un dossier, utilisez ce dossier et passez à l'étape 3.
 
 La commande crée un dossier `app-laravel-postgresql` contenant la branche `starter` du dépôt. Pour entrer dans l'application Laravel :
 
