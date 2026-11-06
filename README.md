@@ -8,6 +8,8 @@ Après la découverte de Laravel, suivez le [TD sur les documents, les migration
 
 Pour construire ensuite les routes et le contrôleur de l'API, suivez le [TD API CRUD des documents](TD-API-CRUD-Documents.md) sur la branche `jour2-postgresql-migrations-modeles`. Il explique également la validation côté serveur, les réponses HTTP et la différence avec les vérifications du navigateur. La branche `jour2-api-crud-documents` contient la correction de cette étape.
 
+Pour poursuivre au jour 3, le [TD Form Request des documents](TD-Form-Request-Documents.md) part de cette branche et utilise jour3-form-requests comme correction.
+
 ## Prérequis
 
 - Docker Desktop avec le moteur de conteneurs Linux et Docker Compose ; sous Windows, WSL 2 doit être fonctionnel.
