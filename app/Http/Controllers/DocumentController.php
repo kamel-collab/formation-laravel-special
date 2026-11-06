@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DocumentRequest;
 use App\Models\Document;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class DocumentController extends Controller
@@ -19,24 +19,18 @@ class DocumentController extends Controller
         return response()->json($document);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(DocumentRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:100'],
-            'category' => ['required', 'string', 'max:50'],
-        ]);
+        $data = $request->validated();
 
         $document = Document::create($data);
 
         return response()->json($document, 201);
     }
 
-    public function update(Request $request, Document $document): JsonResponse
+    public function update(DocumentRequest $request, Document $document): JsonResponse
     {
-        $data = $request->validate([
-            'title' => ['required', 'string', 'max:100'],
-            'category' => ['required', 'string', 'max:50'],
-        ]);
+        $data = $request->validated();
 
         $document->update($data);
 
