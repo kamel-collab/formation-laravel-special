@@ -27,7 +27,7 @@ Si nécessaire, changez de branche :
 git switch jour2-decouverte-laravel
 ```
 
-**À vérifier :** le nom affiché est `jour2-decouverte-laravel`. Si Git refuse de changer de branche parce que vous avez des modifications locales, ne les supprimez pas : demandez l'aide du formateur. Si la branche est introuvable dans votre copie, demandez au formateur comment la récupérer. Ce dépôt est local tant qu'une adresse de dépôt partagé n'a pas été fournie.
+**À vérifier :** le nom affiché est `jour2-decouverte-laravel`. Si Git refuse de changer de branche parce que vous avez des modifications locales, ne les supprimez pas : demandez l'aide du formateur. Si la branche est introuvable dans votre copie du dépôt GitHub, récupérez la liste des branches avec `git fetch origin`, puis réessayez `git switch jour2-decouverte-laravel`.
 
 > Le nom exact du fichier de migration sera différent sur chaque poste : Laravel ajoute la date et l'heure de sa création. Repérez sa fin, `create_documents_table.php`.
 

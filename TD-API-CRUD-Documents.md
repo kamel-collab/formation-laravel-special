@@ -32,7 +32,7 @@ Si vous devez rejoindre la branche de départ :
 git switch jour2-postgresql-migrations-modeles
 ```
 
-Si Git signale des modifications ou des fichiers non suivis qui empêchent le changement, conservez votre travail et demandez au formateur comment le sauvegarder. Ne forcez pas le changement et ne supprimez pas vos fichiers. Si la branche n’est pas présente, demandez au formateur comment l’obtenir.
+Si Git signale des modifications ou des fichiers non suivis qui empêchent le changement, conservez votre travail et demandez au formateur comment le sauvegarder. Ne forcez pas le changement et ne supprimez pas vos fichiers. Si la branche est introuvable dans votre copie du dépôt GitHub, exécutez `git fetch origin`, puis réessayez `git switch jour2-postgresql-migrations-modeles`.
 
 Vérifiez les conteneurs et la table :
 
