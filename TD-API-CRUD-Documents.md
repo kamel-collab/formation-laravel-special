@@ -117,6 +117,39 @@ Les méthodes `index` et `show` lisent les données à l’aide du modèle `Docu
 
 `store` et `update` vérifient que `title` et `category` sont présents, sont des chaînes et respectent les limites de la table : respectivement 100 et 50 caractères. Seules les données validées sont utilisées. `store` répond **201** après une création ; `update` répond **200** après une modification. `destroy` supprime la ligne puis répond **204**, sans contenu.
 
+### Comprendre la validation
+
+Le navigateur peut vérifier un formulaire avant l'envoi pour aider l'utilisateur. Mais une requête peut aussi être envoyée directement avec `curl.exe` ou un autre programme : elle ne passe alors pas par le formulaire. **Laravel doit donc vérifier chaque requête reçue**, même si le navigateur effectue déjà des vérifications.
+
+Dans `store` et `update`, `$request->validate(...)` applique les mêmes règles :
+
+| Champ | Règles | Signification |
+| --- | --- | --- |
+| `title` | `required`, `string`, `max:100` | Obligatoire, texte de 100 caractères au maximum. |
+| `category` | `required`, `string`, `max:50` | Obligatoire, texte de 50 caractères au maximum. |
+
+Si les données sont valides, Laravel renvoie les valeurs validées dans `$data`, utilisées ensuite par `create` ou `update`. Si elles sont invalides, la méthode de validation interrompt le traitement : la création ou la modification n'est pas exécutée. Pour une requête qui attend du JSON, Laravel répond **422** avec les erreurs associées aux champs.
+
+```text
+Navigateur ou curl → requête JSON → Laravel vérifie les règles
+                                      ├─ valide → création ou modification
+                                      └─ invalide → réponse 422 et erreurs JSON
+```
+
+Les règles sont ici écrites directement dans le contrôleur, une fois pour la création et une fois pour la modification. Le navigateur pourra appliquer des vérifications supplémentaires pour faciliter la saisie ; cela ne modifie pas les règles de l'API.
+
+### Lire les réponses HTTP
+
+| Statut | Signification dans ce TD |
+| --- | --- |
+| **200 OK** | Lecture ou modification réussie. |
+| **201 Created** | Document créé. |
+| **204 No Content** | Suppression réussie, sans corps de réponse. |
+| **404 Not Found** | Aucun document ne correspond à l'identifiant demandé. |
+| **422 Unprocessable Content** | Les données envoyées ne respectent pas les règles de validation. |
+
+Les étapes suivantes permettent d'observer ces réponses. L'en-tête `Accept: application/json` demande une réponse JSON, notamment pour les erreurs de validation ; `Content-Type: application/json` décrit le format des données envoyées.
+
 ## 3. Déclarer les routes
 
 Ouvrez **`routes/api.php`** dans VS Code. Remplacez tout le contenu par le code suivant, puis enregistrez :
