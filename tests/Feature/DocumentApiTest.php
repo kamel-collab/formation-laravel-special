@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Document;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,16 +10,19 @@ class DocumentApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    private User $user;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->actingAs(User::factory()->create(), 'sanctum');
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user, 'sanctum');
     }
 
     public function test_documents_can_be_listed_and_retrieved(): void
     {
-        $document = Document::create(['title' => 'Contrat', 'category' => 'Administratif']);
+        $document = $this->user->documents()->create(['title' => 'Contrat', 'category' => 'Administratif']);
 
         $this->getJson('/api/documents')
             ->assertOk()
@@ -55,7 +57,7 @@ class DocumentApiTest extends TestCase
 
     public function test_invalid_data_is_rejected_on_create_and_update(): void
     {
-        $document = Document::create(['title' => 'Original', 'category' => 'Formation']);
+        $document = $this->user->documents()->create(['title' => 'Original', 'category' => 'Formation']);
 
         $this->postJson('/api/documents', [])->assertUnprocessable()
             ->assertJsonValidationErrors(['title', 'category']);

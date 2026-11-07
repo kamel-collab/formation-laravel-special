@@ -3,43 +3,44 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentRequest;
-use App\Models\Document;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class DocumentController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(Document::all());
+        return response()->json($request->user()->documents()->get());
     }
 
-    public function show(Document $document): JsonResponse
+    public function show(Request $request, string $document): JsonResponse
     {
-        return response()->json($document);
+        return response()->json($request->user()->documents()->findOrFail($document));
     }
 
     public function store(DocumentRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        $document = Document::create($data);
+        $document = $request->user()->documents()->create($data);
 
         return response()->json($document, 201);
     }
 
-    public function update(DocumentRequest $request, Document $document): JsonResponse
+    public function update(DocumentRequest $request, string $document): JsonResponse
     {
         $data = $request->validated();
 
+        $document = $request->user()->documents()->findOrFail($document);
         $document->update($data);
 
         return response()->json($document);
     }
 
-    public function destroy(Document $document): Response
+    public function destroy(Request $request, string $document): Response
     {
-        $document->delete();
+        $request->user()->documents()->findOrFail($document)->delete();
 
         return response()->noContent();
     }

@@ -12,8 +12,8 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/documents', [DocumentController::class, 'index']);
-    Route::get('/documents/{document}', [DocumentController::class, 'show']);
+    Route::get('/documents/{document}', [DocumentController::class, 'show'])->whereNumber('document');
     Route::post('/documents', [DocumentController::class, 'store']);
-    Route::put('/documents/{document}', [DocumentController::class, 'update']);
-    Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
+    Route::put('/documents/{document}', [DocumentController::class, 'update'])->whereNumber('document');
+    Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->whereNumber('document');
 });
