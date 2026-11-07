@@ -3,12 +3,20 @@
 namespace Tests\Feature;
 
 use App\Models\Document;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DocumentApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create(), 'sanctum');
+    }
 
     public function test_documents_can_be_listed_and_retrieved(): void
     {
