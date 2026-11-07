@@ -205,6 +205,8 @@ curl.exe -i -X POST -H "Accept: application/json" -H "Content-Type: application/
 
 **À vérifier :** la réponse indique **201 Created** et contient l’objet créé avec un `id`. Notez cet identifiant pour les étapes suivantes. Si vous relancez la commande, vous créez une nouvelle ligne.
 
+Dans pgAdmin, ouvrez la table **documents**, puis faites un clic droit sur celle-ci et choisissez **View/Edit Data > All Rows**. La ligne créée apparaît avec son `id`, son titre et sa catégorie. Pour configurer l'accès à pgAdmin, suivez l'étape 8 du [guide de démarrage](TD-Demarrage-Docker.md).
+
 ## 6. Lister et consulter
 
 Pour afficher la liste :
