@@ -76,9 +76,17 @@ Exécutez Composer **dans le conteneur `app`** :
 docker compose exec app composer install
 ```
 
-Composer installe les paquets du projet selon les versions enregistrées dans `composer.lock`. Ils sont placés dans le dossier `vendor` du projet.
+Composer installe les paquets du projet selon les versions enregistrées dans `composer.lock`. Dans le conteneur, ils se trouvent dans `/var/www/html/vendor`, conservé par le volume Docker `composer_vendor`. Le dossier du projet reste accessible dans VS Code sur Windows ; le dossier `vendor` éventuellement présent sur Windows ne représente pas nécessairement le contenu du volume utilisé par l'application.
 
-**À vérifier :** la commande se termine sans erreur et le dossier `vendor` est présent. L'installation initiale peut être longue, notamment si les fichiers sont sur le disque Windows et doivent être téléchargés.
+Vérifiez l'installation dans le conteneur :
+
+```bash
+docker compose exec app ls -l vendor/autoload.php
+```
+
+**À vérifier :** Composer se termine sans erreur et la commande affiche `vendor/autoload.php`. Le premier téléchargement peut prendre plusieurs minutes.
+
+Après un changement de branche qui modifie `composer.lock`, exécutez à nouveau `docker compose exec app composer install` pour synchroniser les dépendances. Si le volume `composer_vendor` est nouveau ou vide, démarrez les services puis utilisez la même commande.
 
 ## Étape 5 Créer la configuration locale
 
@@ -132,9 +140,9 @@ Pour les redémarrer plus tard, dans le même dossier :
 docker compose up -d
 ```
 
-Puis ouvrez à nouveau [http://localhost:8088](http://localhost:8088). Les données de PostgreSQL restent dans le volume `postgres_data`. Il n'est pas nécessaire de recréer `.env` ni de régénérer la clé à chaque démarrage.
+Puis ouvrez à nouveau [http://localhost:8088](http://localhost:8088). Les données de PostgreSQL restent dans le volume `postgres_data` et les dépendances dans `composer_vendor`. Il n'est pas nécessaire de recréer `.env` ni de régénérer la clé à chaque démarrage.
 
-**Ne lancez pas `docker compose down -v` pendant le TD** : cette option supprime les volumes du projet, notamment les données de la base.
+**Ne lancez pas `docker compose down -v` pendant le TD** : cette option supprime les volumes du projet, notamment les données de la base et les dépendances installées.
 
 ## Si un problème apparaît
 
