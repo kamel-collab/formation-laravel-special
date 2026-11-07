@@ -8,7 +8,7 @@ Pour suivre les étapes détaillées avec les vérifications et les solutions au
 
 - Docker Desktop avec le moteur de conteneurs Linux et Docker Compose ; sous Windows, WSL 2 doit être fonctionnel.
 - Git pour cloner le dépôt et VS Code pour modifier les fichiers.
-- Le port **8088** disponible sur la machine.
+- Les ports **8088** et **5050** disponibles sur la machine.
 - Un accès aux images Docker et aux dépendances Composer lors du premier démarrage, ou un environnement hors ligne préparé et testé à l'avance.
 
 PHP, Composer et PostgreSQL sont exécutés dans Docker. Ils n'ont pas besoin d'être installés sur Windows. Dans WSL 2, placer le projet dans le système de fichiers Linux peut améliorer les performances ; VS Code peut l'ouvrir avec l'intégration WSL.
@@ -51,6 +51,8 @@ Après un changement de branche qui modifie `composer.lock`, synchronisez les d�
 
 Dans le réseau Docker, Laravel se connecte à PostgreSQL grâce au nom de service `db` sur le port interne 5432. PostgreSQL n'est pas exposé sur un port Windows. Le volume Docker `postgres_data` conserve ses données après un arrêt ou une recréation ordinaire des conteneurs.
 
+pgAdmin permet de consulter la base dans le navigateur à <http://localhost:5050>. Le compte pgAdmin de démonstration est `formation@example.com`, avec le mot de passe `formation_local`. Lors de la première connexion au serveur PostgreSQL dans pgAdmin, utilisez l'hôte `db`, le port `5432`, la base `formation_documents`, l'utilisateur `formation` et le mot de passe `formation_local`. Le [guide de démarrage](TD-Demarrage-Docker.md) détaille les étapes. Ces identifiants sont réservés à la formation locale.
+
 Les migrations ne sont pas exécutées automatiquement pour permettre de les découvrir pendant le cours. Après leur présentation, lancez :
 
 ```bash
@@ -69,12 +71,12 @@ docker compose stop
 docker compose up -d
 ```
 
-`docker compose stop` arrête les conteneurs sans supprimer les données. `docker compose down` conserve normalement les volumes nommés ; l'option `-v` les supprime, y compris la base de données et les dépendances installées dans `composer_vendor`.
+`docker compose stop` arrête les conteneurs sans supprimer les données. `docker compose down` conserve normalement les volumes nommés ; l'option `-v` les supprime, y compris la base, les dépendances et la configuration de pgAdmin.
 
 ## Organisation
 
 - `Dockerfile` : image PHP et Composer, avec l'extension PostgreSQL.
-- `compose.yaml` : application, base PostgreSQL et volumes de données et de dépendances.
+- `compose.yaml` : application, PostgreSQL, pgAdmin et leurs volumes.
 - `.env.example` : modèle de configuration locale.
 - `routes/`, `app/` et `database/migrations/` : routes, code PHP et migrations étudiés au jour 2.
 
