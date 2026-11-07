@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentExempleController;
+use App\Http\Controllers\DocumentFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/exemples/document', [DocumentExempleController::class, 'show']);
@@ -16,4 +17,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/documents', [DocumentController::class, 'store']);
     Route::put('/documents/{document}', [DocumentController::class, 'update'])->whereNumber('document');
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->whereNumber('document');
+    Route::post('/documents/{document}/file', [DocumentFileController::class, 'store'])->whereNumber('document');
+    Route::get('/documents/{document}/file', [DocumentFileController::class, 'download'])->whereNumber('document');
 });

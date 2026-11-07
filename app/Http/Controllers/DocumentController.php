@@ -6,6 +6,8 @@ use App\Http\Requests\DocumentRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
@@ -40,7 +42,15 @@ class DocumentController extends Controller
 
     public function destroy(Request $request, string $document): Response
     {
-        $request->user()->documents()->findOrFail($document)->delete();
+        DB::transaction(function () use ($request, $document): void {
+            $record = $request->user()->documents()->lockForUpdate()->findOrFail($document);
+
+            if ($record->file_path !== null && ! Storage::disk('local')->delete($record->file_path)) {
+                abort(500, 'Impossible de supprimer le fichier.');
+            }
+
+            $record->delete();
+        });
 
         return response()->noContent();
     }
