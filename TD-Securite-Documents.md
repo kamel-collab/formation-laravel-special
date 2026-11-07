@@ -13,7 +13,7 @@ Les fichiers envoyés dans cet exercice sont fictifs. La validation proposée es
 ## Avant de commencer
 
 - Utilisez votre travail terminé ou la branche `jour3-form-requests`. La branche `jour3-securite-documents` contient la correction complète.
-- Dans VS Code, ouvrez le dossier Laravel contenant `artisan` et `compose.yaml`. Ouvrez **Terminal > Nouveau terminal**, puis choisissez **PowerShell**. Les commandes de ce guide y sont exécutées.
+- Dans VS Code, ouvrez le dossier Laravel contenant `artisan` et `compose.yaml`. Ouvrez **Terminal > Nouveau terminal**, puis choisissez **PowerShell**. Les commandes de préparation de ce guide y sont exécutées. Installez aussi Postman : son mode gratuit sans connexion suffit pour les essais.
 - Docker Desktop est démarré, le projet a été configuré et les migrations du jour 2 ont été réalisées. Ne recréez pas `.env` et ne régénérez pas la clé si le projet fonctionne déjà.
 - Les commandes qui suivent créent deux comptes fictifs et modifient la base **locale de formation**. Les migrations sont à lancer pendant le cours, au moment indiqué par le formateur. Elles appliquent toutes les migrations en attente.
 - Pour éviter toute perte de travail lors d'un changement de branche, contrôlez `git status` et sauvegardez vos modifications. Si Git refuse un changement, demandez de l'aide au formateur. Ne forcez pas le changement.
@@ -26,7 +26,7 @@ docker compose ps
 
 Les services `app` et `db` doivent être démarrés. Si vous devez rejoindre la branche de départ après avoir sauvegardé votre travail, utilisez `git switch jour3-form-requests`. Si la branche est introuvable, `git fetch origin` peut actualiser les références avant de réessayer.
 
-> Les exemples de tokens de ce TD servent à comprendre l'API avec PowerShell. L'interface HTML du jour 2 ne transmet pas encore de token : une fois les routes protégées, elle ne pourra plus utiliser l'API sans adaptation. La liaison de l'interface n'est pas demandée dans ce TD.
+> Les essais de l'API dans ce TD se font avec Postman. L'interface HTML du jour 2 ne transmet pas encore de token : une fois les routes protégées, elle ne pourra plus utiliser l'API sans adaptation. La liaison de l'interface n'est pas demandée dans ce TD.
 
 ---
 
@@ -236,31 +236,57 @@ Si un compte existe déjà avec l'un de ces emails, le seeder le conserve sans c
 
 Dans pgAdmin, actualisez **Tables**, puis ouvrez la table **users** avec **View/Edit Data > All Rows** pour retrouver les comptes de démonstration. La table **personal_access_tokens** sera remplie après la connexion. Les mots de passe et tokens sont enregistrés sous forme de hachages : ne cherchez pas leurs valeurs en clair. L'accès à pgAdmin est décrit à l'étape 8 du [guide de démarrage](TD-Demarrage-Docker.md).
 
-Sans token, la liste doit répondre **401** :
+### Tester l'API avec Postman
 
-```powershell
-curl.exe -i -H "Accept: application/json" http://localhost:8088/api/documents
+Ouvrez Postman. Il n'est pas nécessaire de créer un compte ni d'enregistrer une collection. Le bouton **Send** envoie la requête ; le code de réponse s'affiche en bas à droite.
+
+> Les captures ont été prises sur une installation de test utilisant le port **18088**. Pour votre projet, utilisez toujours le port **8088** et les adresses écrites dans le guide. Les identifiants de documents peuvent aussi être différents.
+
+#### 1. Vérifier l'accès sans connexion
+
+1. Cliquez sur **+** pour ouvrir une requête. Choisissez **GET** à gauche de l'adresse.
+2. Saisissez `http://localhost:8088/api/documents`.
+3. Cliquez sur **Headers** et ajoutez la clé `Accept` avec la valeur `application/json`.
+4. Dans **Authorization**, vérifiez que le type est **No Auth**, puis cliquez sur **Send**.
+
+**À vérifier :** la réponse est **401 Unauthorized** : l'API demande une authentification.
+
+![Requête sans token et réponse 401](images/postman/01-sans-token.png)
+
+#### 2. Connecter Amina
+
+1. Ouvrez un deuxième onglet avec **+**. Choisissez **POST** et saisissez `http://localhost:8088/api/login`.
+2. Dans **Headers**, ajoutez `Accept` : `application/json`.
+3. Cliquez sur **Body**, sélectionnez **raw**, puis **JSON** dans la liste à droite.
+4. Copiez ce contenu dans la zone de texte et cliquez sur **Send** :
+
+```json
+{
+  "email": "amina@example.test",
+  "password": "Formation123!"
+}
 ```
 
-Dans le **même terminal PowerShell**, connectez Amina et préparez les en-têtes :
+![Connexion dans Postman avec un compte fictif](images/postman/02-connexion-json.png)
 
-```powershell
-$connexionA = @{ email = 'amina@example.test'; password = 'Formation123!' } | ConvertTo-Json -Compress
-$sessionA = Invoke-RestMethod -Uri 'http://localhost:8088/api/login' -Method POST -ContentType 'application/json' -Body $connexionA
-$entetesA = @{ Accept = 'application/json'; Authorization = "Bearer $($sessionA.token)" }
-Invoke-RestMethod -Uri 'http://localhost:8088/api/documents' -Headers $entetesA
-```
+**À vérifier :** la réponse est **200 OK** et contient un champ `token`. Sélectionnez et copiez toute sa valeur, y compris le chiffre et le caractère `|`, sans les guillemets. Le token est personnel : ne le partagez pas et ne le mettez pas dans Git.
 
-**À vérifier :** la connexion renvoie un token dans `$sessionA`, puis la liste répond sans erreur. À ce stade, les documents ne sont pas encore filtrés par propriétaire.
+#### 3. Utiliser puis révoquer le token
 
-Vérifiez la révocation :
+1. Revenez au premier onglet, celui de `GET /api/documents`.
+2. Cliquez sur **Authorization** et choisissez **Bearer Token** dans **Type**.
+3. Collez le token d'Amina dans **Token**, sans ajouter le mot `Bearer`, puis cliquez sur **Send**.
 
-```powershell
-Invoke-RestMethod -Uri 'http://localhost:8088/api/logout' -Method POST -Headers $entetesA
-curl.exe -i -H "Accept: application/json" -H "Authorization: Bearer $($sessionA.token)" http://localhost:8088/api/documents
-```
+![Choix de Bearer Token dans Postman](images/postman/03-bearer-token.png)
 
-**À vérifier :** la déconnexion confirme la révocation et la requête suivante renvoie **401**. Pour poursuivre, reconnectez Amina et actualisez `$sessionA` et `$entetesA` en relançant les trois premières lignes de connexion ci-dessus. Après dix tentatives de connexion en une minute, une réponse **429** peut apparaître : patientez avant de réessayer.
+Sur cette capture, le champ est encore vide et le 401 affiché correspond à la requête précédente.
+
+**À vérifier :** la liste répond **200 OK**. À ce stade, les documents ne sont pas encore filtrés par propriétaire.
+
+Pour tester la déconnexion, ouvrez un autre onglet : sélectionnez **POST**, saisissez `http://localhost:8088/api/logout`, ajoutez le header `Accept: application/json`, puis choisissez **Authorization > Bearer Token** et collez le même token. Cliquez sur **Send**. La réponse confirme la déconnexion. Revenez à la liste et cliquez à nouveau sur **Send** : elle répond maintenant **401**.
+
+Pour continuer, reconnectez Amina dans l'onglet de connexion et copiez le **nouveau** token dans **Authorization** de l'onglet des documents. Gardez cet onglet pour la suite. Après dix tentatives de connexion en une minute, une réponse **429** peut apparaître : patientez avant de réessayer.
+
 
 ---
 
@@ -446,30 +472,48 @@ Route::middleware('auth:sanctum')->group(function (): void {
 docker compose exec app php artisan migrate --no-interaction
 ```
 
-Dans le même terminal que l'étape 1, avec `$entetesA` contenant un token valide d'Amina :
+### Créer un document pour Amina
 
-```powershell
-$donnees = @{ title = 'Document Amina'; category = 'Formation' } | ConvertTo-Json -Compress
-$documentA = Invoke-RestMethod -Uri 'http://localhost:8088/api/documents' -Method POST -ContentType 'application/json' -Headers $entetesA -Body $donnees
-$documentA
-Invoke-RestMethod -Uri "http://localhost:8088/api/documents/$($documentA.id)" -Headers $entetesA
+1. Dans l'onglet des documents, vérifiez que **Authorization > Bearer Token** contient le token valide d'Amina.
+2. Choisissez **POST** et saisissez `http://localhost:8088/api/documents`.
+3. Dans **Body**, choisissez **raw**, puis **JSON**. Copiez ce contenu et cliquez sur **Send** :
+
+```json
+{
+  "title": "Document Amina",
+  "category": "Formation"
+}
 ```
 
-**À vérifier :** la création renvoie le document avec son identifiant et Amina peut le relire. Notez `$documentA.id` pour l'étape suivante.
+**À vérifier :** la réponse **201 Created** affiche le document, notamment son `id` et son `user_id`. Notez l'`id` : vous l'utiliserez dans les adresses suivantes. Par exemple, si l'`id` vaut 1, l'adresse sera `/api/documents/1`.
 
-Dans pgAdmin, ouvrez ou actualisez **documents > View/Edit Data > All Rows**. Repérez la nouvelle ligne et sa colonne `user_id`, puis comparez cette valeur à l'identifiant d'Amina dans la table **users**.
+![Création du document d'Amina dans Postman](images/postman/04-document-cree.png)
 
-Connectez Karim et tentez de lire le document d'Amina :
+Dans pgAdmin, ouvrez ou actualisez **documents > View/Edit Data > All Rows**. Repérez la nouvelle ligne et comparez son `user_id` à l'identifiant d'Amina dans **users**.
 
-```powershell
-$connexionB = @{ email = 'karim@example.test'; password = 'Formation123!' } | ConvertTo-Json -Compress
-$sessionB = Invoke-RestMethod -Uri 'http://localhost:8088/api/login' -Method POST -ContentType 'application/json' -Body $connexionB
-$entetesB = @{ Accept = 'application/json'; Authorization = "Bearer $($sessionB.token)" }
-curl.exe -i -H "Accept: application/json" -H "Authorization: Bearer $($sessionB.token)" "http://localhost:8088/api/documents/$($documentA.id)"
-Invoke-RestMethod -Uri 'http://localhost:8088/api/documents' -Headers $entetesB
+Pour vérifier qu'Amina peut le lire, gardez son token, choisissez **GET**, saisissez `http://localhost:8088/api/documents/1` en remplaçant `1` par votre `id`, puis cliquez sur **Send** : la réponse est **200 OK**.
+
+### Essayer avec Karim
+
+1. Revenez à l'onglet de connexion `POST /api/login`. Remplacez le contenu de **Body > raw > JSON** par :
+
+```json
+{
+  "email": "karim@example.test",
+  "password": "Formation123!"
+}
 ```
 
-**À vérifier :** la lecture du document d'Amina répond **404** pour Karim. La liste de Karim ne contient pas ce document. Ses propres documents peuvent apparaître s'il en a déjà créé.
+2. Cliquez sur **Send**, puis copiez la valeur du token de Karim sans les guillemets.
+3. Ouvrez un nouvel onglet **+**, choisissez **GET** et saisissez `http://localhost:8088/api/documents/1` en remplaçant `1` par l'`id` du document d'Amina.
+4. Dans **Headers**, ajoutez `Accept: application/json`. Dans **Authorization**, choisissez **Bearer Token**, collez le token de Karim et cliquez sur **Send**.
+
+**À vérifier :** Karim reçoit **404 Not Found** pour le document d'Amina. Dans ce même onglet, remplacez l'adresse par `http://localhost:8088/api/documents` et cliquez sur **Send** : sa liste ne contient pas le document d'Amina.
+
+![Accès au document d'Amina refusé à Karim](images/postman/05-acces-refuse.png)
+
+Gardez les deux onglets de documents : l'un utilise le token d'Amina, l'autre celui de Karim. Vérifiez le token dans **Authorization** si vous changez d'onglet.
+
 
 ---
 
@@ -766,49 +810,36 @@ Route::middleware('auth:sanctum')->group(function (): void {
 docker compose exec app php artisan migrate --no-interaction
 ```
 
-Placez un **vrai fichier PDF de démonstration de moins de 1 Mo** dans le dossier du projet Laravel, et nommez-le `exemple-formation.pdf`. Vous pouvez par exemple exporter une page fictive en PDF depuis votre traitement de texte. Ne sélectionnez pas un fichier confidentiel.
+Préparez un **vrai PDF fictif de moins de 1 Mo** sur votre ordinateur, par exemple en exportant une page de texte en PDF. N'utilisez pas de fichier confidentiel.
 
-Vérifiez que le fichier est présent :
+### Envoyer le PDF d'Amina
 
-```powershell
-Test-Path -LiteralPath .\exemple-formation.pdf
-```
+1. Revenez à l'onglet de documents d'Amina et vérifiez son token dans **Authorization**.
+2. Choisissez **POST** et saisissez `http://localhost:8088/api/documents/1/file`, en remplaçant `1` par l'`id` de son document.
+3. Cliquez sur **Body**, puis **form-data**. Dans la colonne **Key**, saisissez `file`.
+4. Survolez la ligne `file`, cliquez sur la petite flèche à droite de la clé et choisissez **File**. Dans **Value**, cliquez sur **Select Files** et choisissez votre PDF.
+5. Cliquez sur **Send**. Postman construit automatiquement le contenu multipart : ne définissez pas manuellement son `Content-Type`.
 
-La commande doit afficher `True`. Avec le document d'Amina créé à l'étape 2 :
+**À vérifier :** la réponse est **201 Created** et confirme l'enregistrement. Si vous cliquez une seconde fois sur **Send**, la réponse est **409**, car ce document possède déjà un fichier.
 
-```powershell
-curl.exe -i -X POST -H "Accept: application/json" -H "Authorization: Bearer $($sessionA.token)" -F "file=@exemple-formation.pdf;type=application/pdf" "http://localhost:8088/api/documents/$($documentA.id)/file"
-```
+![Envoi d'un PDF avec form-data](images/postman/06-envoi-pdf.png)
 
-**À vérifier :** l'API répond **201** et indique que le fichier est enregistré. Relancez la même commande : elle doit répondre **409**, car le document possède déjà un fichier.
+Dans pgAdmin, actualisez les lignes de **documents** et observez `file_path` sur le document d'Amina : c'est son chemin dans le stockage privé de Laravel.
 
-Dans pgAdmin, actualisez les lignes de **documents** et observez la colonne `file_path` du document d'Amina. Elle contient le chemin interne du fichier, conservé dans le stockage privé de Laravel.
+### Vérifier l'accès au fichier
 
-Karim essaie ensuite de télécharger le fichier d'Amina :
-
-```powershell
-curl.exe -i -H "Accept: application/json" -H "Authorization: Bearer $($sessionB.token)" "http://localhost:8088/api/documents/$($documentA.id)/file"
-```
-
-**À vérifier :** la réponse est **404**. Amina peut télécharger son fichier :
-
-```powershell
-curl.exe -sS -w "HTTP %{http_code}`n" -H "Authorization: Bearer $($sessionA.token)" -o copie-formation.pdf "http://localhost:8088/api/documents/$($documentA.id)/file"
-```
-
-**À vérifier :** la commande affiche `HTTP 200`. Ouvrez `copie-formation.pdf` et comparez-le à l'original. Les fichiers d'essai locaux ne doivent pas être ajoutés au dépôt Git.
+1. Dans l'onglet de Karim, conservez son token, choisissez **GET** et saisissez `http://localhost:8088/api/documents/1/file`, avec l'`id` du document d'Amina. Cliquez sur **Send** : la réponse est **404**.
+2. Dans l'onglet d'Amina, vérifiez son token et choisissez **GET** pour la même adresse. À côté de **Send**, cliquez sur la flèche, puis sur **Send and Download**.
+3. Choisissez où enregistrer le fichier, puis ouvrez-le et comparez-le au PDF d'origine. La réponse est **200 OK**.
 
 ### Vérifier le refus d'un faux PDF
 
-Créez dans le dossier du projet un fichier texte contenant par exemple `Ce fichier est du texte.`, puis nommez-le `faux.pdf`. Envoyez-le à un **nouveau document** d'Amina, qui ne possède pas encore de fichier :
+1. Créez un nouveau document pour Amina comme à l'étape 2, par exemple avec le titre `Document pour fichier invalide`, et notez son `id`.
+2. Avec un éditeur de texte, créez un fichier contenant `Ce fichier est du texte.` et enregistrez-le sous le nom `faux.pdf` ; vérifiez que son nom ne se termine pas par `.txt`.
+3. Envoyez ce fichier avec **POST**, **Body > form-data**, clé `file` de type **File**, à l'adresse `http://localhost:8088/api/documents/1/file` en remplaçant `1` par l'`id` du nouveau document. Gardez le token d'Amina.
 
-```powershell
-$donneesTest = @{ title = 'Document pour fichier invalide'; category = 'Formation' } | ConvertTo-Json -Compress
-$documentTest = Invoke-RestMethod -Uri 'http://localhost:8088/api/documents' -Method POST -ContentType 'application/json' -Headers $entetesA -Body $donneesTest
-curl.exe -i -X POST -H "Accept: application/json" -H "Authorization: Bearer $($sessionA.token)" -F "file=@faux.pdf;type=application/pdf" "http://localhost:8088/api/documents/$($documentTest.id)/file"
-```
+**À vérifier :** la réponse est **422**. Changer le nom d'un fichier ne transforme pas son contenu en PDF. Ne mettez pas les fichiers d'essai dans Git.
 
-**À vérifier :** la réponse est **422**. Le nom et le type déclarés par le client ne suffisent pas à rendre le contenu valide.
 
 ## Tests automatiques
 
