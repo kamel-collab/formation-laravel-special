@@ -53,11 +53,10 @@ Composer met à jour `composer.json` et `composer.lock`. La correction a été t
 
 ### Ajouter la connexion
 
-Créez les fichiers nécessaires avec Artisan :
+Créez le contrôleur avec Artisan :
 
 ```powershell
 docker compose exec app php artisan make:controller AuthController --no-interaction
-docker compose exec app php artisan make:seeder FormationUsersSeeder --no-interaction
 ```
 
 Si un fichier existe déjà, vérifiez votre branche avant de continuer. Dans VS Code, remplacez le contenu de chaque fichier indiqué par son bloc complet, puis enregistrez.
@@ -150,40 +149,6 @@ class AuthController extends Controller
 }
 ```
 
-### Comptes fictifs — `database/seeders/FormationUsersSeeder.php`
-
-Ce seeder fonctionne seulement dans l’environnement `local`. Il ne modifie pas le mot de passe d’un compte déjà présent avec le même email.
-
-```php
-<?php
-
-namespace Database\Seeders;
-
-use App\Models\User;
-use Illuminate\Database\Seeder;
-use RuntimeException;
-
-class FormationUsersSeeder extends Seeder
-{
-    public function run(): void
-    {
-        if (! app()->environment('local')) {
-            throw new RuntimeException('Ce seeder est réservé à la formation locale.');
-        }
-
-        User::firstOrCreate(
-            ['email' => 'amina@example.test'],
-            ['name' => 'Amina', 'password' => 'Formation123!'],
-        );
-
-        User::firstOrCreate(
-            ['email' => 'karim@example.test'],
-            ['name' => 'Karim', 'password' => 'Formation123!'],
-        );
-    }
-}
-```
-
 ### Routes — `routes/api.php`
 
 Le groupe `auth:sanctum` exige un utilisateur authentifié pour les routes des documents.
@@ -216,10 +181,40 @@ Vérifiez que la configuration du projet est locale avant de créer les comptes.
 
 ```powershell
 docker compose exec app php artisan migrate --no-interaction
-docker compose exec app php artisan db:seed --class=FormationUsersSeeder --no-interaction
 ```
 
-La migration applique toutes les migrations en attente. Le seeder crée `amina@example.test` et `karim@example.test` avec le mot de passe local `Formation123!` si ces comptes n'existent pas déjà.
+La commande applique toutes les migrations en attente.
+
+### Créer les deux utilisateurs à la main
+
+Nous allons créer deux comptes fictifs avec **Tinker**, la console Laravel déjà utilisée au jour 2. Dans le terminal PowerShell, lancez :
+
+```powershell
+docker compose exec app php artisan tinker
+```
+
+Dans Tinker, vérifiez d'abord si les deux adresses existent :
+
+```php
+\App\Models\User::whereIn('email', ['amina@example.test', 'karim@example.test'])->get(['id', 'name', 'email']);
+```
+
+Si la collection est vide, créez les deux comptes. Copiez chaque ligne dans Tinker puis appuyez sur Entrée :
+
+```php
+\App\Models\User::create(['name' => 'Amina', 'email' => 'amina@example.test', 'password' => 'Formation123!']);
+\App\Models\User::create(['name' => 'Karim', 'email' => 'karim@example.test', 'password' => 'Formation123!']);
+```
+
+**À vérifier :** Tinker affiche les deux utilisateurs créés. Laravel hache le mot de passe grâce à la configuration du modèle `User`. Ces identifiants sont réservés à la formation locale.
+
+Si une ou les deux adresses existent déjà, ne recréez pas les comptes concernés : leur adresse est unique et leur mot de passe peut être différent. Demandez l'aide du formateur pour utiliser des comptes de démonstration adaptés, puis reportez leurs identifiants dans les commandes de connexion du TD.
+
+Quittez Tinker pour revenir dans PowerShell :
+
+```text
+exit
+```
 
 Dans pgAdmin, actualisez **Tables**, puis ouvrez la table **users** avec **View/Edit Data > All Rows** pour retrouver les comptes de démonstration. La table **personal_access_tokens** sera remplie après la connexion. Les mots de passe et tokens sont enregistrés sous forme de hachages : ne cherchez pas leurs valeurs en clair. L'accès à pgAdmin est décrit à l'étape 8 du [guide de démarrage](TD-Demarrage-Docker.md).
 
@@ -1057,7 +1052,7 @@ Les étapes HTTP de ce TD permettent aussi de vérifier votre propre travail ava
 | --- | --- |
 | `401` sur les documents | Reconnectez l'utilisateur et actualisez l'en-tête `Bearer`. Vérifiez si le token a expiré ou a été révoqué. |
 | `429` à la connexion | La limite de tentatives est atteinte. Attendez une minute. |
-| Connexion refusée pour un compte fictif | Vérifiez le seeder et l'email. Un compte déjà existant n'a pas son mot de passe remplacé par le seeder. |
+| Connexion refusée pour un compte fictif | Vérifiez l'email et le mot de passe. Si le compte existait déjà, demandez au formateur quels identifiants utiliser. |
 | `404` sur le document | Vérifiez son identifiant et son propriétaire. Les anciens documents sans propriétaire ne sont visibles par aucun compte. |
 | `409` à l'envoi | Un fichier est déjà associé. Créez un autre document pour refaire l'essai. |
 | `422` à l'envoi | Vérifiez le contenu PDF, sa signature, son extension et la limite de 1 Mo. |
