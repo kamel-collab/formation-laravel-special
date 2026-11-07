@@ -1,6 +1,6 @@
 # Application Laravel et PostgreSQL
 
-Projet du jour 2 pour le fil rouge de gestion de documents. Il contient une application Laravel 13, son environnement Docker, le modèle et la migration des documents ainsi que l'API CRUD. L'interface reliée à l'API sera construite ensuite.
+Correction du jour 3 pour le fil rouge de gestion de documents. L'API Laravel utilise Sanctum, limite les documents à leur propriétaire et permet d'associer un PDF privé à un document.
 
 Pour suivre les étapes détaillées avec les vérifications et les solutions aux problèmes courants, consultez le [guide de travaux dirigés](TD-Demarrage-Docker.md).
 
@@ -84,7 +84,9 @@ La migration `create_documents_table` décrit une table avec :
 - `category` : catégorie, 50 caractères maximum ;
 - `created_at` et `updated_at` : dates gérées par Eloquent.
 
-Le modèle `App\Models\Document` représente cette table et autorise l'affectation de `title` et `category`. Ces champs décrivent les informations du document ; le fichier lui-même n'est pas encore téléversé ou stocké.
+Les migrations du jour 3 ajoutent `user_id`, qui peut être vide pour conserver les documents antérieurs, et `file_path`, qui peut être vide lorsqu'aucun fichier n'a encore été associé. Les anciens documents sans propriétaire ne figurent dans aucune liste privée.
+
+Le modèle `App\Models\Document` représente cette table et autorise l'affectation de `title` et `category`. Le chemin du fichier reste interne et n'est pas exposé dans les réponses JSON.
 
 Les migrations ne sont pas exécutées automatiquement pour permettre de les découvrir pendant le cours. Après leur présentation, lancez :
 
@@ -98,7 +100,9 @@ Le test `DocumentPersistenceTest` vérifie la migration et le modèle dans une b
 
 ## API des documents
 
-Après l'exécution des migrations, les routes `/api/documents` permettent de lister et créer des documents et les routes `/api/documents/{document}` permettent de les consulter, modifier et supprimer. La création et la modification valident `title` et `category`. Envoyez l'en-tête `Accept: application/json` pour obtenir les erreurs de validation en JSON. Le guide du TD explique les requêtes et leurs résultats.
+Après l'exécution des migrations, les routes `/api/documents` permettent de lister et créer ses documents et les routes `/api/documents/{document}` permettent de les consulter, modifier et supprimer. Elles nécessitent une authentification Sanctum. La création et la modification valident `title` et `category`. Le fichier PDF de 1 Mo maximum est envoyé et téléchargé par les routes `/api/documents/{document}/file`. Le [TD sécurité](TD-Securite-Documents.md) explique les requêtes et leurs résultats.
+
+Après avoir rejoint cette branche, synchronisez les dépendances dans Docker avec `docker compose exec app composer install`. Les migrations et la création des comptes fictifs sont à effectuer au moment prévu dans le TD, uniquement dans la base locale de formation.
 
 ## Commandes utiles
 
@@ -121,4 +125,4 @@ docker compose up -d
 - `.env.example` : modèle de configuration locale.
 - `routes/`, `app/` et `database/migrations/` : routes, code PHP et migrations étudiés au jour 2.
 
-La page affichée au départ est celle de Laravel. La route `/api/exemples/document` fournit un exemple fictif ; l'API CRUD utilise la base. Le téléversement de fichiers n'est pas encore implémenté.
+La page affichée au départ est celle de Laravel. La route `/api/exemples/document` fournit un exemple fictif. L'interface Fetch du jour 2 ne transmet pas encore de token et doit être adaptée pour appeler les routes protégées.
