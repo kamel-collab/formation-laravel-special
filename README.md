@@ -104,7 +104,7 @@ Le test `DocumentPersistenceTest` vérifie la migration et le modèle dans une b
 
 Après l'exécution des migrations, les routes `/api/documents` permettent de lister et créer ses documents et les routes `/api/documents/{document}` permettent de les consulter, modifier et supprimer. Elles nécessitent une authentification Sanctum. La création et la modification valident `title` et `category`. Le fichier PDF de 1 Mo maximum est envoyé et téléchargé par les routes `/api/documents/{document}/file`. Le [TD sécurité](TD-Securite-Documents.md) explique les requêtes et leurs résultats.
 
-Après avoir rejoint cette branche, synchronisez les dépendances dans Docker avec `docker compose exec app composer install`. Le TD explique comment exécuter les migrations et créer les deux comptes fictifs à la main avec Tinker, dans la base locale de formation.
+Après avoir rejoint cette branche, synchronisez les dépendances dans Docker avec `docker compose exec app composer install`. Le TD explique comment exécuter les migrations et créer deux comptes fictifs avec `FormationUsersSeeder`, dans la base locale de formation.
 
 ## Commandes utiles
 
