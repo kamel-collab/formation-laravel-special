@@ -168,6 +168,8 @@ docker compose exec app php artisan db:table documents
 
 **À vérifier :** retrouvez les colonnes `id`, `title`, `category`, `created_at` et `updated_at`. Cette commande décrit la structure ; elle ne liste pas les documents enregistrés.
 
+Dans pgAdmin, ouvrez **Servers > PostgreSQL formation > Databases > formation_documents > Schemas > public > Tables**. Faites un clic droit sur **Tables > Refresh** : la table `documents` doit apparaître. Pour la connexion à pgAdmin, consultez l'étape 8 du [guide de démarrage](TD-Demarrage-Docker.md).
+
 ## 7. Créer et relire un document avec Tinker
 
 Tinker est une console interactive qui permet d'essayer du code PHP dans le contexte de l'application Laravel. Lancez-la dans le conteneur :
@@ -194,6 +196,8 @@ Toujours dans Tinker, lisez les documents :
 ```
 
 **À vérifier :** la collection affichée contient le document ajouté. Les dates `created_at` et `updated_at` ont été renseignées par Eloquent.
+
+Pour voir la même ligne dans pgAdmin, faites un clic droit sur la table **documents**, puis choisissez **View/Edit Data > All Rows**. Le titre et la catégorie du document apparaissent. Si la grille était déjà ouverte, relancez l'affichage pour l'actualiser.
 
 Quittez Tinker pour revenir au terminal :
 
