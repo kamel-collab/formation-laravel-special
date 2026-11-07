@@ -45,6 +45,10 @@ Ouvrez ensuite <http://localhost:8088>. Le premier lancement peut prendre plusie
 
 Le conteneur `app` attend que `vendor/autoload.php` existe avant de démarrer le serveur Laravel. Pendant cette attente, `docker compose exec app composer install` reste utilisable. Composer utilise le fichier `composer.lock` fourni pour installer les versions prévues.
 
+Les dépendances `vendor` sont conservées dans le volume Docker `composer_vendor`, accessible dans le conteneur à `/var/www/html/vendor`. Le code du projet reste dans le dossier ouvert avec VS Code. Cette organisation réduit les accès aux nombreux fichiers de dépendances sur le disque Windows. Le dossier `vendor` de Windows n'est pas utilisé par le conteneur et ne reflète pas nécessairement le contenu du volume.
+
+Après un changement de branche qui modifie `composer.lock`, synchronisez les dépendances avec `docker compose exec app composer install`. Si le volume est nouveau ou vide, lancez également cette commande après le démarrage de `app`.
+
 ## Première route JSON
 
 L'exemple de la séquence « Découverte de Laravel » est accessible dans le navigateur à <http://localhost:8088/api/exemples/document> :
@@ -85,12 +89,12 @@ docker compose stop
 docker compose up -d
 ```
 
-`docker compose stop` arrête les conteneurs sans supprimer les données. `docker compose down` conserve normalement les volumes nommés ; l'option `-v` les supprime et efface donc la base de données de cette formation.
+`docker compose stop` arrête les conteneurs sans supprimer les données. `docker compose down` conserve normalement les volumes nommés ; l'option `-v` les supprime, y compris la base de données et les dépendances installées dans `composer_vendor`.
 
 ## Organisation
 
 - `Dockerfile` : image PHP et Composer, avec l'extension PostgreSQL.
-- `compose.yaml` : application, base PostgreSQL et volume de données.
+- `compose.yaml` : application, base PostgreSQL et volumes de données et de dépendances.
 - `.env.example` : modèle de configuration locale.
 - `routes/`, `app/` et `database/migrations/` : routes, code PHP et migrations étudiés au jour 2.
 
