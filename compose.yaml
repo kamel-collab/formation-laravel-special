@@ -34,6 +34,20 @@ services:
       timeout: 5s
       retries: 12
 
+  pgadmin:
+    image: dpage/pgadmin4:9.19.0
+    environment:
+      PGADMIN_DEFAULT_EMAIL: formation@example.com
+      PGADMIN_DEFAULT_PASSWORD: formation_local
+    ports:
+      - "127.0.0.1:5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   composer_vendor:
+  pgadmin_data:
