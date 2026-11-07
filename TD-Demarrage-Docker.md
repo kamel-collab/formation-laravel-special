@@ -2,7 +2,7 @@
 
 ## Objectif
 
-À la fin de ce guide, vous aurez récupéré le projet de départ, démarré Laravel et PostgreSQL dans Docker, installé les dépendances PHP et ouvert la page Laravel dans votre navigateur. Vous vérifierez également la connexion à la base de données.
+À la fin de ce guide, vous aurez démarré Laravel et PostgreSQL dans Docker, ouvert l'application et connecté pgAdmin à la base de données.
 
 Lisez chaque étape, exécutez les commandes dans l'ordre et comparez votre résultat à la vérification indiquée avant de continuer.
 
@@ -58,7 +58,7 @@ Depuis le dossier `app-laravel-postgresql`, lancez :
 docker compose up --build -d
 ```
 
-Cette commande construit l'image de l'application, puis démarre les services `app` et `db`. PostgreSQL initialise sa base dans un volume Docker lors du premier lancement.
+Cette commande construit l'image de l'application, puis démarre `app`, `db` et `pgadmin`. PostgreSQL initialise sa base dans un volume Docker lors du premier lancement.
 
 Contrôlez les services :
 
@@ -66,7 +66,7 @@ Contrôlez les services :
 docker compose ps
 ```
 
-**À vérifier :** `app` et `db` sont démarrés. `db` doit indiquer `healthy`. La première fois, `app` peut attendre l'installation des dépendances : c'est prévu. L'application ne sera utilisable dans le navigateur qu'après les étapes suivantes.
+**À vérifier :** `app`, `db` et `pgadmin` sont démarrés. `db` doit indiquer `healthy`. La première fois, `app` peut attendre l'installation des dépendances : c'est prévu. L'application ne sera utilisable dans le navigateur qu'après les étapes suivantes.
 
 ## Étape 4 Installer les dépendances Laravel
 
@@ -126,6 +126,31 @@ docker compose exec app php artisan db:show
 
 Dans cette configuration, Laravel utilise le nom `db` pour joindre PostgreSQL sur le réseau Docker. Le port interne PostgreSQL est `5432` ; il n'est pas nécessaire d'ouvrir un port PostgreSQL sur Windows.
 
+## Étape 8 Accéder à PostgreSQL avec pgAdmin
+
+pgAdmin est une interface graphique permettant de voir les bases, les tables et leurs données.
+
+1. Ouvrez [http://localhost:5050](http://localhost:5050). Le premier démarrage peut prendre quelques instants.
+2. Connectez-vous à **pgAdmin** avec l'email `formation@example.com` et le mot de passe `formation_local`.
+3. Sur la page d'accueil de pgAdmin, cliquez sur **Add New Server**. Vous pouvez aussi faire un clic droit sur **Servers**, puis choisir **Register > Server...**.
+4. Dans l'onglet **General**, saisissez `PostgreSQL formation` comme nom.
+5. Dans l'onglet **Connection**, renseignez les paramètres PostgreSQL :
+
+| Champ pgAdmin | Valeur |
+| --- | --- |
+| Host name/address | `db` |
+| Port | `5432` |
+| Maintenance database | `formation_documents` |
+| Username | `formation` |
+| Password | `formation_local` |
+
+6. Cliquez sur **Save**. Saisissez à nouveau le mot de passe PostgreSQL si pgAdmin le demande.
+7. Dépliez **Servers > PostgreSQL formation > Databases > formation_documents > Schemas > public > Tables**.
+
+**À vérifier :** la base `formation_documents` est accessible. Au départ, la liste des tables peut être vide : les participants exécuteront les migrations plus tard. Si nécessaire, faites un clic droit sur **Tables > Refresh** après une migration.
+
+Le compte pgAdmin et l'utilisateur PostgreSQL ont des rôles différents. Les identifiants ci-dessus sont fictifs et réservés à cette démonstration locale. Le serveur enregistré et les préférences pgAdmin sont conservés dans le volume `pgadmin_data`.
+
 ## Arrêter et reprendre le travail
 
 Pour arrêter les services à la fin d'une séance :
@@ -151,6 +176,8 @@ Puis ouvrez à nouveau [http://localhost:8088](http://localhost:8088). Les donn�
 | Docker indique qu'il ne peut pas joindre le moteur | Démarrez Docker Desktop, attendez qu'il soit prêt, puis réessayez. |
 | La commande ne trouve pas `compose.yaml` | Placez-vous dans le dossier du projet `app-laravel-postgresql`, puis réessayez. |
 | Le port 8088 est déjà utilisé | Prévenez le formateur pour identifier le programme concerné et choisir la solution adaptée. |
+| pgAdmin ne s'ouvre pas sur le port 5050 | Vérifiez `docker compose ps` et `docker compose logs --tail 30 pgadmin`. Demandez au formateur si le port 5050 est déjà occupé. |
+| pgAdmin ne se connecte pas à PostgreSQL | Vérifiez `db`, le port `5432`, l'utilisateur `formation`, le mot de passe et l'état `healthy` de `db`. Dans pgAdmin, ne remplacez pas `db` par `localhost`. |
 | L'installation Composer échoue lors d'un téléchargement | Vérifiez avec le formateur l'accès réseau ou la préparation hors ligne, puis relancez `docker compose exec app composer install`. |
 | Le navigateur n'affiche pas Laravel | Vérifiez `docker compose ps`, puis consultez `docker compose logs --tail 30 app`. Assurez-vous que les étapes 4 et 5 sont terminées. |
 | Laravel indique que la clé manque | Vérifiez avec le formateur si `.env` existe et si cette nouvelle copie a déjà reçu sa clé. Ne remplacez pas un `.env` existant. |
@@ -161,4 +188,5 @@ Puis ouvrez à nouveau [http://localhost:8088](http://localhost:8088). Les donn�
 - Je sais démarrer et arrêter les services avec Docker Compose.
 - Je sais exécuter Composer et Artisan dans le conteneur `app`.
 - Je sais ouvrir Laravel sur le port 8088 et vérifier sa connexion à PostgreSQL.
+- Je sais ouvrir pgAdmin sur le port 5050 et enregistrer le serveur PostgreSQL.
 - Je sais que le volume conserve les données et que `.env` contient la configuration locale.
