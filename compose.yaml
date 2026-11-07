@@ -6,6 +6,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - .:/var/www/html
+      - composer_vendor:/var/www/html/vendor
     ports:
       - "127.0.0.1:8088:8080"
     environment:
@@ -35,3 +36,4 @@ services:
 
 volumes:
   postgres_data:
+  composer_vendor:
