@@ -221,6 +221,8 @@ docker compose exec app php artisan db:seed --class=FormationUsersSeeder --no-in
 
 La migration applique toutes les migrations en attente. Le seeder crée `amina@example.test` et `karim@example.test` avec le mot de passe local `Formation123!` si ces comptes n'existent pas déjà.
 
+Dans pgAdmin, actualisez **Tables**, puis ouvrez la table **users** avec **View/Edit Data > All Rows** pour retrouver les comptes de démonstration. La table **personal_access_tokens** sera remplie après la connexion. Les mots de passe et tokens sont enregistrés sous forme de hachages : ne cherchez pas leurs valeurs en clair. L'accès à pgAdmin est décrit à l'étape 8 du [guide de démarrage](TD-Demarrage-Docker.md).
+
 Sans token, la liste doit répondre **401** :
 
 ```powershell
@@ -441,6 +443,8 @@ Invoke-RestMethod -Uri "http://localhost:8088/api/documents/$($documentA.id)" -H
 ```
 
 **À vérifier :** la création renvoie le document avec son identifiant et Amina peut le relire. Notez `$documentA.id` pour l'étape suivante.
+
+Dans pgAdmin, ouvrez ou actualisez **documents > View/Edit Data > All Rows**. Repérez la nouvelle ligne et sa colonne `user_id`, puis comparez cette valeur à l'identifiant d'Amina dans la table **users**.
 
 Connectez Karim et tentez de lire le document d'Amina :
 
@@ -764,6 +768,8 @@ curl.exe -i -X POST -H "Accept: application/json" -H "Authorization: Bearer $($s
 ```
 
 **À vérifier :** l'API répond **201** et indique que le fichier est enregistré. Relancez la même commande : elle doit répondre **409**, car le document possède déjà un fichier.
+
+Dans pgAdmin, actualisez les lignes de **documents** et observez la colonne `file_path` du document d'Amina. Elle contient le chemin interne du fichier, conservé dans le stockage privé de Laravel.
 
 Karim essaie ensuite de télécharger le fichier d'Amina :
 
