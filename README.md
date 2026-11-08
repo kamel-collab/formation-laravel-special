@@ -128,3 +128,8 @@ docker compose up -d
 - `routes/`, `app/` et `database/migrations/` : routes, code PHP et migrations étudiés au jour 2.
 
 La page affichée au départ est celle de Laravel. La route `/api/exemples/document` fournit un exemple fictif. L'interface Fetch du jour 2 ne transmet pas encore de token et doit être adaptée pour appeler les routes protégées.
+
+
+## Jour 4 : Valkey et cache des documents
+
+Depuis cette branche, suivez le [TD Valkey et cache des documents](TD-Valkey-Cache-Documents.md) pour démarrer Valkey, le connecter à Laravel et mettre en cache une liste personnelle. La branche `jour4-valkey-cache-documents` contient la correction. Le guide indique les vérifications à chaque étape et préserve la base de formation existante.
