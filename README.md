@@ -150,3 +150,9 @@ La route protégée `GET /api/documents` autorise cinq requêtes par minute pour
 
 Le limiteur utilise le cache par défaut de Laravel : si `CACHE_STORE=redis` est configuré comme dans le TD précédent, les compteurs sont enregistrés dans Valkey. La valeur cinq est une valeur pédagogique à adapter aux besoins d’une application réelle.
 
+## Supports du jour 4
+
+- [Cours PowerPoint : interface, Valkey et rate limiting](docs/Jour%204%20-%20Rappel%20et%20interface%20API%20securisee.pptx)
+- [Ordre des branches des deux projets](docs/Ordre%20des%20branches%20-%20projets%20formation.md)
+- Les illustrations du cours sont dans `docs/illustrations-jour4/`.
+
