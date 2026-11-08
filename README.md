@@ -149,3 +149,4 @@ La branche `jour4-rate-limiting-documents` contient la correction de la partie s
 La route protégée `GET /api/documents` autorise cinq requêtes par minute pour chaque utilisateur authentifié, afin de faciliter les observations en formation. Après cinq requêtes, elle renvoie `429 Too Many Requests` et indique le délai dans `Retry-After`. Les autres routes des documents ne sont pas limitées par ce nouveau compteur. La limite de dix tentatives par minute sur `/api/login` reste distincte.
 
 Le limiteur utilise le cache par défaut de Laravel : si `CACHE_STORE=redis` est configuré comme dans le TD précédent, les compteurs sont enregistrés dans Valkey. La valeur cinq est une valeur pédagogique à adapter aux besoins d’une application réelle.
+
