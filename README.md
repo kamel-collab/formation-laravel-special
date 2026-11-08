@@ -145,3 +145,10 @@ Après un changement de branche qui modifie `composer.lock`, exécutez `docker c
 ## Suite du jour 4 : limitation des requêtes
 
 La partie 4 du [guide progressif Valkey et cache](TD-Valkey-Cache-Documents.md) se réalise depuis cette branche. Elle ajoute un limiteur sur la liste des documents, puis vérifie la réponse HTTP 429 dans Postman. La branche `jour4-rate-limiting-documents` contient la correction. Le guide termine par les vérifications et le bilan du jour 4.
+
+
+## Supports du jour 4
+
+- [Cours PowerPoint : interface, Valkey et rate limiting](docs/Jour%204%20-%20Rappel%20et%20interface%20API%20securisee.pptx)
+- [Ordre des branches des deux projets](docs/Ordre%20des%20branches%20-%20projets%20formation.md)
+- Les illustrations du cours sont dans `docs/illustrations-jour4/`.
