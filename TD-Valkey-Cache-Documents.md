@@ -389,7 +389,7 @@ docker compose exec app php artisan route:list -v --path=api/documents
 
 Si vous obtenez 429 avant la sixième demande, Amina a probablement déjà utilisé une partie de son quota. Attendez le délai indiqué dans `Retry-After`, vérifiez qu’aucune autre application ne demande la liste avec son compte, puis recommencez à compter. **Ne videz pas tout le cache Valkey** pour cet exercice.
 
-5. Après le délai indiqué, cliquez à nouveau sur **Send**. **À vérifier :** la réponse redevient **200**. Le compteur est lié à l’utilisateur, pas à la valeur de son token : demander un nouveau token pour Amina ne donne pas un nouveau quota.
+5. Après le délai indiqué, cliquez à nouveau sur **Send**. **À vérifier :** la réponse redevient **200**. Le compteur est lié à l’utilisateur, pas à la valeur de son token : demander un nouveau token pour Amina ne donne pas un nouveau quota. L’interface du TD précédent affiche encore un message générique si la liste reçoit 429 : utilisez Postman pour voir le code et le délai, puis patientez avant de recharger l’interface.
 
 ## 14. Vérifier un autre compte et la portée de la limite
 
