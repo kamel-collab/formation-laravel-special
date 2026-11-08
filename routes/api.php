@@ -12,7 +12,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/documents', [DocumentController::class, 'index']);
+    Route::get('/documents', [DocumentController::class, 'index'])->middleware('throttle:documents');
     Route::get('/documents/{document}', [DocumentController::class, 'show'])->whereNumber('document');
     Route::post('/documents', [DocumentController::class, 'store']);
     Route::put('/documents/{document}', [DocumentController::class, 'update'])->whereNumber('document');
