@@ -6,6 +6,7 @@ use App\Http\Requests\DocumentRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,7 +14,11 @@ class DocumentController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        return response()->json($request->user()->documents()->get());
+        $key = 'documents:user:'.$request->user()->id;
+        $documents = Cache::remember($key, now()->addMinutes(5),
+            fn () => $request->user()->documents()->get()->toArray());
+
+        return response()->json($documents);
     }
 
     public function show(Request $request, string $document): JsonResponse
@@ -26,6 +31,7 @@ class DocumentController extends Controller
         $data = $request->validated();
 
         $document = $request->user()->documents()->create($data);
+        Cache::forget('documents:user:'.$request->user()->id);
 
         return response()->json($document, 201);
     }
@@ -36,6 +42,7 @@ class DocumentController extends Controller
 
         $document = $request->user()->documents()->findOrFail($document);
         $document->update($data);
+        Cache::forget('documents:user:'.$request->user()->id);
 
         return response()->json($document);
     }
@@ -51,6 +58,7 @@ class DocumentController extends Controller
 
             $record->delete();
         });
+        Cache::forget('documents:user:'.$request->user()->id);
 
         return response()->noContent();
     }

@@ -128,3 +128,14 @@ docker compose up -d
 - `routes/`, `app/` et `database/migrations/` : routes, code PHP et migrations étudiés au jour 2.
 
 La page affichée au départ est celle de Laravel. La route `/api/exemples/document` fournit un exemple fictif. L'interface Fetch du jour 2 ne transmet pas encore de token et doit être adaptée pour appeler les routes protégées.
+
+
+## Jour 4 : Valkey et cache des documents
+
+La branche `jour4-valkey-cache-documents` contient la correction du TD Valkey. Le guide `TD-Valkey-Cache-Documents.md` se trouve sur la branche de départ `jour3-securite-documents`.
+
+Le service Docker `valkey` est accessible uniquement sur le réseau Compose. Predis permet à Laravel de communiquer avec lui. Dans une installation locale déjà configurée, adaptez les valeurs de `.env` comme indiqué dans le guide : `CACHE_STORE=redis`, `REDIS_CLIENT=predis` et `REDIS_HOST=valkey`. Ne remplacez pas le fichier `.env` ni sa clé.
+
+La liste utilise une clé distincte par utilisateur et expire après cinq minutes. Les créations, modifications et suppressions de documents invalident la liste concernée. L’ajout d’un PDF l’invalide aussi, car il modifie les informations du document. Valkey sert ici de cache temporaire ; PostgreSQL reste la source de référence et le PDF reste dans le stockage privé.
+
+Après un changement de branche qui modifie `composer.lock`, exécutez `docker compose exec app composer install`. Si une configuration Laravel a été mise en cache auparavant, consultez le guide avant de l’actualiser. Le cache d’exemple et Valkey sont prévus pour un environnement local de formation.

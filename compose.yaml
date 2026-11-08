@@ -14,6 +14,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
     # Permet d'entrer dans le conteneur pour installer Composer au premier lancement.
     command: >-
       sh -c 'while [ ! -f vendor/autoload.php ]; do
@@ -32,6 +34,16 @@ services:
       test: ["CMD-SHELL", "pg_isready -U formation -d formation_documents"]
       interval: 5s
       timeout: 5s
+      retries: 12
+
+  valkey:
+    image: valkey/valkey:9.0.7-alpine
+    # Cache temporaire : les données sont reconstruites depuis PostgreSQL.
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 12
 
   pgadmin:

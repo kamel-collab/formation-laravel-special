@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DocumentFileRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -17,7 +18,7 @@ class DocumentFileController extends Controller
         $path = null;
 
         try {
-            return DB::transaction(function () use ($request, $document, &$path): JsonResponse {
+            $response = DB::transaction(function () use ($request, $document, &$path): JsonResponse {
                 $record = $request->user()->documents()->lockForUpdate()->findOrFail($document);
 
                 if ($record->file_path !== null) {
@@ -41,6 +42,12 @@ class DocumentFileController extends Controller
 
             throw $exception;
         }
+
+        if ($response->getStatusCode() === 201) {
+            Cache::forget('documents:user:'.$request->user()->id);
+        }
+
+        return $response;
     }
 
     public function download(Request $request, string $document): StreamedResponse
