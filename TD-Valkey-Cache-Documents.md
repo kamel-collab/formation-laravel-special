@@ -95,7 +95,7 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 ```
 
-`valkey` est le nom du service Docker. `redis` est le nom du pilote prévu par Laravel ; il peut parler à Valkey grâce à leur compatibilité. Le mot « Redis » dans la configuration ne signifie pas qu’un second serveur doit être installé. Si Valkey est arrêté, cette correction ne prévoit pas de bascule automatique : les opérations utilisant le cache peuvent échouer jusqu’à son redémarrage.
+`valkey` est le nom du service Docker. `redis` est le nom du pilote prévu par Laravel ; il peut parler à Valkey grâce à leur compatibilité. Le mot « Redis » dans la configuration ne signifie pas qu’un second serveur doit être installé. Si Valkey est arrêté, cette correction ne prévoit pas de bascule automatique : les opérations utilisant le cache peuvent échouer jusqu’à son redémarrage. Une écriture PostgreSQL peut avoir réussi avant une erreur d’invalidation ; vérifiez le document avant de réessayer pour éviter un doublon.
 
 Pour qu’une **nouvelle** installation de formation ait les mêmes valeurs par défaut, appliquez les mêmes changements dans `.env.example` : remplacez `CACHE_STORE=file`, `REDIS_CLIENT=phpredis` et `REDIS_HOST=127.0.0.1` par les trois premières lignes ci-dessus. Ne copiez pas `.env` dans Git : il contient la configuration propre au poste.
 
