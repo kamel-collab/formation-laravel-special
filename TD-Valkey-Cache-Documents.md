@@ -1,6 +1,6 @@
 # TD progressif : Valkey, cache et invalidation
 
-**Durée : 100 minutes** en trois parties : connexion à Valkey (30 min), mise en cache d’une lecture (40 min), puis invalidation (30 min). Avancez étape par étape et vérifiez le résultat avant de continuer. La branche `jour4-valkey-cache-documents` contient la correction complète.
+**Durée des TD : 125 minutes** en quatre parties : connexion à Valkey (30 min), mise en cache (40 min), invalidation (30 min), puis limitation des requêtes (25 min). Avancez étape par étape et vérifiez le résultat avant de continuer. La branche `jour4-valkey-cache-documents` contient la correction des trois premières parties ; `jour4-rate-limiting-documents` contient la correction de la quatrième.
 
 ## Avant de commencer
 
@@ -281,7 +281,7 @@ Attention : ces opérations modifient réellement les documents de la **base de 
 
 Expliquez pourquoi on supprime la copie en cache **après** la réussite de l’écriture dans PostgreSQL. Que se passerait-il si l’on oubliait l’invalidation et que la durée de vie était de cinq minutes ?
 
-## Vérifications finales et difficultés
+## Vérifications et difficultés des parties 1 à 3
 
 | Situation | Vérification |
 | --- | --- |
@@ -304,3 +304,139 @@ git diff jour4-valkey-cache-documents -- compose.yaml .env.example composer.json
 ```
 
 La branche de correction contient aussi des tests automatiques. Ne changez pas de branche sans avoir d’abord sauvegardé vos fichiers et vérifié `git status`.
+
+
+---
+
+# Partie 4 : limiter les requêtes de la liste — 25 min
+
+## 10. Préparer l’exercice
+
+Continuez avec votre travail des trois premières parties ou utilisez leur correction, la branche Laravel `jour4-valkey-cache-documents`. Le présent guide se trouve sur cette branche. La correction de cette quatrième partie sera sur `jour4-rate-limiting-documents`.
+
+Avant tout changement de branche, enregistrez et sauvegardez votre travail, puis vérifiez `git status` : ne forcez pas un changement si Git le refuse. Le projet doit déjà utiliser Predis et Valkey comme dans la partie 1.
+
+```powershell
+git branch --show-current
+docker compose ps
+docker compose exec valkey valkey-cli ping
+docker compose exec app php artisan config:show cache.default
+```
+
+**À vérifier :** Valkey répond `PONG` et le cache par défaut est `redis`. Dans ce projet, les compteurs de limitation utiliseront donc Valkey. Si `CACHE_STORE` est resté sur `file`, reprenez la configuration de la partie 1 et redémarrez `app`. Ne recréez ni `.env` ni `APP_KEY` et ne relancez ni migration ni seeder.
+
+La route `POST /api/login` possède déjà une limite distincte de **10 tentatives par minute** depuis le jour 3. Nous allons ajouter un autre compteur, sur **la liste `GET /api/documents` seulement**, avec un maximum de **5 demandes par minute et par utilisateur**. Cinq est un petit nombre choisi pour observer facilement le résultat en classe.
+
+## 11. Définir la limite par utilisateur
+
+Dans VS Code, ouvrez `app/Providers/AppServiceProvider.php`. Ajoutez ces trois lignes parmi les imports existants, sous `namespace App\Providers;` :
+
+```php
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+```
+
+Conservez l’import `ServiceProvider` déjà présent. Dans ce même fichier, remplacez **uniquement la méthode `boot`** par :
+
+```php
+    public function boot(): void
+    {
+        RateLimiter::for('documents', function (Request $request): Limit {
+            return Limit::perMinute(5)->by('documents:'.$request->user()->id);
+        });
+    }
+```
+
+Enregistrez. `documents` est le nom du limiteur ; `perMinute(5)` donne cinq demandes par minute ; `by(...)` crée un compteur distinct pour chaque identifiant utilisateur. Dans cet exercice, la route qui utilisera ce limiteur est protégée par `auth:sanctum` : Laravel identifie d’abord la personne.
+
+### À vous
+
+Si Amina et Karim utilisent le même ordinateur, doivent-ils partager les cinq demandes ? Expliquez votre réponse à partir de `by(...)` avant de continuer.
+
+## 12. Appliquer le limiteur à la liste
+
+Ouvrez `routes/api.php`. Dans le groupe `Route::middleware('auth:sanctum')`, recherchez :
+
+```php
+    Route::get('/documents', [DocumentController::class, 'index']);
+```
+
+Remplacez **cette ligne seulement** par :
+
+```php
+    Route::get('/documents', [DocumentController::class, 'index'])->middleware('throttle:documents');
+```
+
+Enregistrez. `throttle:documents` demande à Laravel d’utiliser le limiteur défini à l’étape précédente. Le groupe `auth:sanctum` reste en place ; la route `/api/login` conserve sa limite séparée.
+
+Dans le terminal du projet Laravel :
+
+```powershell
+docker compose exec app php artisan route:list -v --path=api/documents
+```
+
+**À vérifier :** sous `GET api/documents`, la sortie affiche les classes de middleware `Authenticate:sanctum` et `ThrottleRequests:documents` (avec leur nom complet). Si une ancienne configuration de routes avait été mise en cache et que la modification n’apparaît pas, demandez au formateur avant de lancer `docker compose exec app php artisan route:clear`. Cette commande retire le fichier de routes compilées ; elle ne vide pas les compteurs Valkey ni PostgreSQL.
+
+## 13. Observer 200, puis 429 dans Postman
+
+1. Mettez en pause les autres onglets ou applications qui interrogent la liste avec le compte d’Amina, y compris l’interface web : leurs requêtes comptent aussi.
+2. Connectez Amina avec `POST http://localhost:8088/api/login`, **Body > raw > JSON**, comme au jour 3. Copiez le token reçu. Ne le partagez pas.
+3. Ouvrez un autre onglet. Choisissez **GET**, saisissez `http://localhost:8088/api/documents`, ajoutez `Accept: application/json` dans **Headers**, puis choisissez **Authorization > Bearer Token** et collez le token d’Amina.
+4. Cliquez sur **Send** cinq fois en comptant les requêtes. Puis cliquez une sixième fois.
+
+**À vérifier :** si son compteur était vierge au départ, les cinq premières réponses sont **200 OK** et la sixième est **429 Too Many Requests**. Dans les **Headers de la réponse**, repérez `X-RateLimit-Limit` et `X-RateLimit-Remaining`. Sur la réponse 429, `Retry-After` indique le nombre de secondes à attendre avant de réessayer.
+
+Si vous obtenez 429 avant la sixième demande, Amina a probablement déjà utilisé une partie de son quota. Attendez le délai indiqué dans `Retry-After`, vérifiez qu’aucune autre application ne demande la liste avec son compte, puis recommencez à compter. **Ne videz pas tout le cache Valkey** pour cet exercice.
+
+5. Après le délai indiqué, cliquez à nouveau sur **Send**. **À vérifier :** la réponse redevient **200**. Le compteur est lié à l’utilisateur, pas à la valeur de son token : demander un nouveau token pour Amina ne donne pas un nouveau quota.
+
+## 14. Vérifier un autre compte et la portée de la limite
+
+1. Recommencez rapidement avec Amina jusqu’à obtenir **429** sur la liste. Gardez cet onglet.
+2. Dans l’onglet de connexion Postman, connectez Karim et copiez **son** token. Attention à la limite séparée de connexion : après trop de tentatives sur `/api/login`, attendez une minute.
+3. Ouvrez un nouvel onglet **GET /api/documents**, ajoutez `Accept: application/json` et le token de Karim dans **Authorization > Bearer Token**. Cliquez sur **Send**.
+
+**À vérifier :** Karim reçoit **200** si son propre quota est disponible, même si Amina a atteint sa limite. Sa liste ne contient pas les documents d’Amina. L’authentification et le contrôle du propriétaire continuent de s’appliquer.
+
+La nouvelle limite concerne la **liste** `GET /api/documents`. Laravel accepte aussi `HEAD` sur cette même route, avec le même limiteur. Les routes de lecture d’un document précis, de création, de modification, de suppression et de fichier ne sont pas limitées par ce nouveau compteur. La limite de connexion reste une protection distincte. Le rate limiting réduit certains abus, mais ne constitue pas à lui seul une protection complète contre toutes les attaques.
+
+### À vous
+
+1. Que signifie le statut **429** ?
+2. Pourquoi la clé du compteur contient-elle l’identifiant utilisateur ?
+3. Quelle différence voyez-vous entre le cache de la liste et le compteur de requêtes ?
+
+## 15. Comparer avec la correction
+
+Une fois votre travail sauvegardé, comparez sans changer de branche, après récupération éventuelle de la branche de correction :
+
+```powershell
+git diff jour4-rate-limiting-documents -- app/Providers/AppServiceProvider.php routes/api.php
+```
+
+La branche de correction contient également un test automatisé. Il vérifie cinq réponses autorisées, une réponse 429, la séparation entre utilisateurs et le retour après le délai. Vous n’avez pas besoin de créer ce fichier pour terminer le TD.
+
+## Difficultés de la partie 4
+
+| Situation | Vérification |
+| --- | --- |
+| Erreur de limiteur introuvable | Vérifiez le nom `documents` dans `AppServiceProvider` et `throttle:documents` dans la route. |
+| Erreur sur l’utilisateur | Vérifiez que la route reste dans le groupe `auth:sanctum` et qu’un token valide est envoyé. |
+| 429 dès le début | Consultez `Retry-After`, attendez le délai et suspendez les autres clients utilisant le même compte. |
+| Karim reçoit aussi 429 | Vérifiez son token et attendez son propre délai si son quota est déjà utilisé. |
+| Le compteur ne réagit pas après modification | Vérifiez la route, le cache par défaut et la configuration Laravel avec le formateur. |
+| Impossible de se connecter | La limite de `/api/login` est distincte ; attendez si elle a été atteinte et vérifiez les identifiants. |
+
+---
+
+# Vérifications et bilan du jour 4 — 10 min
+
+Avec le formateur, vérifiez les points suivants, en respectant les délais de limitation :
+
+- Sans token, la liste protégée répond **401**. Avec un token valide et un quota disponible, elle répond **200**.
+- Amina et Karim voient chacun leurs propres documents. Un PDF privé est téléchargeable uniquement par son propriétaire.
+- Valkey répond **PONG**. La liste est mise en cache avec une clé par utilisateur et une durée de vie ; une modification retire la bonne clé.
+- Après cinq demandes autorisées sur la liste, la suivante répond **429**. Un autre utilisateur conserve son propre quota et `Retry-After` indique quand réessayer.
+
+Pour conclure à l’oral : quel est le rôle de Laravel, de PostgreSQL et de Valkey ? Quelle différence faites-vous entre **authentifier**, **autoriser**, **mettre en cache** et **limiter les requêtes** ?

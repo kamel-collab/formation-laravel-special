@@ -140,3 +140,8 @@ La liste utilise une clé distincte par utilisateur et expire après cinq minute
 
 Après un changement de branche qui modifie `composer.lock`, exécutez `docker compose exec app composer install`. Si une configuration Laravel a été mise en cache auparavant, consultez le guide avant de l’actualiser. Le cache d’exemple et Valkey sont prévus pour un environnement local de formation.
 
+
+
+## Suite du jour 4 : limitation des requêtes
+
+La partie 4 du [guide progressif Valkey et cache](TD-Valkey-Cache-Documents.md) se réalise depuis cette branche. Elle ajoute un limiteur sur la liste des documents, puis vérifie la réponse HTTP 429 dans Postman. La branche `jour4-rate-limiting-documents` contient la correction. Le guide termine par les vérifications et le bilan du jour 4.
