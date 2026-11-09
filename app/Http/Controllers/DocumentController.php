@@ -14,6 +14,10 @@ class DocumentController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        if (! config('cache.documents_enabled')) {
+            return response()->json($request->user()->documents()->get());
+        }
+
         $key = 'documents:user:'.$request->user()->id;
         $documents = Cache::remember($key, now()->addMinutes(5),
             fn () => $request->user()->documents()->get()->toArray());

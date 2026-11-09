@@ -17,6 +17,9 @@ return [
 
     'default' => env('CACHE_STORE', 'database'),
 
+    // Interrupteur pédagogique : ne désactive pas le stockage du rate limiter.
+    'documents_enabled' => env('DOCUMENTS_CACHE_ENABLED', true),
+
     /*
     |--------------------------------------------------------------------------
     | Cache Stores

@@ -101,3 +101,21 @@ git switch jour5-k6-performance-documents
 ```
 
 Pour un serveur ou un VPS, demandez d’abord l’autorisation et adaptez l’adresse et la charge à l’environnement prévu. Ne lancez pas ce TD contre un service public ou des données réelles.
+
+## Utiliser la correction
+
+Le fichier `k6/documents.js` accepte des paramètres sans changer son code. Après avoir obtenu `$env:K6_TOKEN` comme ci-dessus, lancez :
+
+```powershell
+docker run --rm --network formation-laravel_default -v "${PWD}:/scripts" -e K6_TOKEN -e VUS=2 -e DURATION=3s grafana/k6:1.4.2 run /scripts/k6/documents.js
+```
+
+Modifiez `VUS` pour comparer 1, 2 et 5 utilisateurs. La mesure `lecture_200_ms` concerne uniquement les lectures réussies. Les compteurs `reponses_200`, `reponses_429` et `autres_reponses` apparaissent lorsqu’au moins une réponse de ce type a été reçue.
+
+Pour envoyer exactement six requêtes après expiration du quota :
+
+```powershell
+docker run --rm --network formation-laravel_default -v "${PWD}:/scripts" -e K6_TOKEN -e SCENARIO=limite grafana/k6:1.4.2 run /scripts/k6/documents.js
+```
+
+Le check `lecture réussie (200)` et la métrique HTTP signalent les 429 comme des échecs de lecture : cela permet d’observer la protection, même si ces réponses sont attendues pendant ce test. Pour tester un autre serveur autorisé, fournissez également `-e BASE_URL=https://adresse-du-serveur`.

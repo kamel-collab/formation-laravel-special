@@ -21,6 +21,22 @@ class DocumentCacheTest extends TestCase
         Cache::store('array')->flush();
     }
 
+    public function test_document_cache_can_be_disabled_without_changing_the_cache_store(): void
+    {
+        $user = User::factory()->create();
+        $document = $user->documents()->create(['title' => 'Avant', 'category' => 'Formation']);
+        $this->actingAs($user, 'sanctum');
+
+        config(['cache.documents_enabled' => true]);
+        $this->getJson('/api/documents')->assertOk()->assertJsonFragment(['title' => 'Avant']);
+        DB::table('documents')->where('id', $document->id)->update(['title' => 'Après']);
+        $this->getJson('/api/documents')->assertOk()->assertJsonFragment(['title' => 'Avant']);
+
+        config(['cache.documents_enabled' => false]);
+        $this->getJson('/api/documents')->assertOk()->assertJsonFragment(['title' => 'Après']);
+        $this->assertSame('array', config('cache.default'));
+    }
+
     public function test_lists_are_cached_without_repeating_the_query_and_separated_by_user(): void
     {
         $amina = User::factory()->create();
