@@ -47,6 +47,7 @@ Dans le terminal du projet indiqué, copie la commande à côté de la branche.
 | 10 | 4 | Interface | `jour4-interface-api-securisee`<br>`git switch jour4-interface-api-securisee` | Correction de la connexion à l’API protégée, des documents personnels et des PDF. |
 | 11 | 4 | Laravel | `jour4-valkey-cache-documents`<br>`git switch jour4-valkey-cache-documents` | Correction Valkey, cache des listes personnelles et invalidation. |
 | 12 | 4 | Laravel | `jour4-rate-limiting-documents`<br>`git switch jour4-rate-limiting-documents` | Limitation pédagogique des requêtes sur la liste des documents. |
+| 13 | 5 | Laravel | `jour5-k6-performance-documents`<br>`git switch jour5-k6-performance-documents` | Scénarios k6, comparaison du cache et observation des réponses 429. |
 
 L'ordre 6 puis 7 correspond au moment où les deux projets sont reliés. Les étapes 8 et 9 font évoluer le backend ; l’étape 10 adapte l’interface à cette API sécurisée.
 
@@ -61,6 +62,7 @@ L'ordre 6 puis 7 correspond au moment où les deux projets sont reliés. Les ét
 | Jour 4 : interface sécurisée | `jour4-interface-api-securisee` | `jour3-securite-documents` | Connexion, documents personnels et PDF depuis l’interface. |
 | Jour 4 : Valkey et cache | `jour4-interface-api-securisee` | `jour4-valkey-cache-documents` | Même API sécurisée avec cache des listes par utilisateur. |
 | Jour 4 : limitation des requêtes | `jour4-interface-api-securisee` | `jour4-rate-limiting-documents` | Cache et limite de cinq lectures de liste par minute et par utilisateur. |
+| Jour 5 : tests k6 | `jour4-interface-api-securisee` | `jour5-k6-performance-documents` | Mesure locale de l’API protégée avec Docker et k6. |
 
 **Fichiers :** l’interface du jour 2 ne téléverse pas de fichier. L’interface du jour 4 utilise les routes de l’API sécurisée pour envoyer et télécharger les PDF.
 
@@ -80,6 +82,7 @@ Les guides se trouvent dans le projet concerné. Pour un TD, partez de la branch
 | Connecter l’interface à l’API sécurisée | Interface : `jour2-fetch-documents` ; API Laravel : `jour3-securite-documents` | `TD-Interface-API-Securisee.md` | Interface : `jour4-interface-api-securisee` |
 | Connecter Valkey, mettre en cache et invalider | Laravel : `jour3-securite-documents` | `TD-Valkey-Cache-Documents.md` | Laravel : `jour4-valkey-cache-documents` |
 | Limiter les requêtes et observer 429 | Laravel : `jour4-valkey-cache-documents` | `TD-Valkey-Cache-Documents.md`, partie 4 | Laravel : `jour4-rate-limiting-documents` |
+| Tester l’API avec k6 | Laravel : `jour4-rate-limiting-documents` | `TD-k6-API-Documents.md` | Laravel : `jour5-k6-performance-documents` |
 
 Le guide de sécurité propose un seul TD en trois étapes : authentification, propriété des documents, puis PDF privé. Chaque étape se vérifie dans Postman avant de continuer. Dans pgAdmin, les étudiants peuvent aussi observer les données de formation.
 
@@ -91,7 +94,7 @@ Le guide de sécurité propose un seul TD en trois étapes : authentification, p
 - pgAdmin : `http://localhost:5050`.
 - Le TD du jour 4 réalise la liaison de l’interface à l’API sécurisée.
 
-Pour obtenir les mises à jour publiées, exécutez `git fetch origin` dans chaque dépôt, puis vérifiez les branches disponibles avant de changer de branche. Préservez votre travail local.
+Les mises à jour Postman et les branches du jour 4 ont été publiées sur GitHub. Pour les récupérer, exécutez `git fetch origin` dans chaque dépôt, puis vérifiez les branches disponibles avant de changer de branche. Préservez votre travail local.
 
 ## Vérifier et changer de branche
 
