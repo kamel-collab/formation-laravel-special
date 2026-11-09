@@ -71,6 +71,16 @@ docker run --rm --network formation-laravel_default -v "${PWD}:/scripts" -e K6_T
 
 Relevez ces valeurs dans un tableau. Ne comparez les temps de lecture réussie qu’avec les réponses `200` : une réponse `429` n’a pas effectué la même opération.
 
+### Voir le tableau de bord local
+
+Pour avoir le temps d’ouvrir les graphiques, réglez temporairement `duration: '20s'` dans votre scénario, puis lancez :
+
+```powershell
+docker run --rm --network formation-laravel_default -p 127.0.0.1:5665:5665 -v "${PWD}:/scripts" -e K6_TOKEN -e K6_WEB_DASHBOARD=true -e K6_WEB_DASHBOARD_HOST=0.0.0.0 -e K6_WEB_DASHBOARD_PERIOD=1s grafana/k6:1.4.2 run /scripts/k6/documents.js
+```
+
+Pendant l’exécution, ouvrez `http://localhost:5665` dans le navigateur. Le tableau de bord s’arrête avec le test. Comme il dure 20 secondes et utilise un seul compte, de nombreuses réponses `429` sont attendues. Remettez ensuite `duration: '3s'` pour les comparaisons suivantes.
+
 ## 5. Faire varier les utilisateurs — 45 min
 
 Après expiration de la limite de la liste, relancez avec 1 utilisateur et 3 secondes, puis 2 utilisateurs et 3 secondes, puis 5 utilisateurs et 3 secondes. Modifiez `vus` et `duration` dans le fichier. Notez le débit, la durée et le nombre de réponses `429`. Attendez au moins 60 secondes entre les essais pour laisser expirer la fenêtre commencée par la première requête.
