@@ -2,6 +2,26 @@
 
 **Durée : 100 minutes** en trois parties : connexion à Valkey (30 min), mise en cache d’une lecture (40 min), puis invalidation (30 min). Avancez étape par étape et vérifiez le résultat avant de continuer. La branche `jour4-valkey-cache-documents` contient la correction complète.
 
+## À quoi sert Valkey ?
+
+Valkey est un serveur de données rapide qui peut servir à plusieurs besoins :
+
+| Utilisation | Exemple |
+| --- | --- |
+| **Cache** | Conserver temporairement une liste de documents pour la relire rapidement. |
+| **Files d'attente** | Garder des tâches à traiter, comme l'analyse d'un PDF ou l'envoi d'un email. Un worker Laravel exécute ensuite la tâche. |
+| **Rate Limiting** | Compter les requêtes d'un utilisateur pendant une durée donnée. |
+| **Sessions** | Conserver côté serveur les informations de session d'un utilisateur connecté. |
+| **Verrous** | Coordonner des traitements qui doivent éviter de modifier une même ressource simultanément. |
+| **Pub/Sub** | Diffuser un événement aux applications abonnées à un canal. |
+| **Streams** | Conserver une suite de messages ou d'événements à lire par des consommateurs. |
+| **Compteurs et classements** | Compter les téléchargements ou afficher les documents les plus consultés. |
+| **Données géographiques** | Rechercher les agences proches d'une position. |
+
+Dans notre formation, nous utilisons Valkey pour le **cache** et les **compteurs de Rate Limiting**. Les autres usages sont présentés à titre d'exemples ; ils ne sont pas tous réalisés dans ce projet. Pub/Sub diffuse aux abonnés présents ; une file de tâches et un stream répondent à d'autres besoins. La conservation des données en cas d'arrêt dépend de la configuration de persistance de Valkey.
+
+Pour en savoir plus : [présentation de Valkey](https://valkey.io/docs/topics/introduction/) et [types de données](https://valkey.io/docs/topics/data-types/).
+
 ## Avant de commencer
 
 Dans VS Code, ouvrez le dossier **Laravel** qui contient `compose.yaml` et `artisan`. Dans **Terminal > Nouveau terminal**, choisissez PowerShell :
