@@ -310,6 +310,26 @@ La branche de correction contient aussi des tests automatiques. Ne changez pas d
 
 # Partie 4 : limiter les requêtes de la liste — 25 min
 
+## Comprendre le Rate Limiting
+
+Le **Rate Limiting** limite le nombre de requêtes acceptées pendant une durée donnée. Dans cet exercice, chaque utilisateur connecté peut demander la liste de ses documents **5 fois par minute**. Ce petit nombre sert uniquement à voir le résultat facilement.
+
+Par exemple, si le compteur d'Amina est vide et qu'elle envoie rapidement six demandes pour `GET /api/documents` :
+
+| Demande | Résultat |
+| --- | --- |
+| De la 1re à la 5e | Laravel traite la requête ; la liste répond normalement **200 OK**. |
+| 6e avant la fin du délai | Laravel répond **429 Too Many Requests** : il faut attendre avant de réessayer. |
+| Après le délai | Amina peut demander sa liste à nouveau. |
+
+Pour savoir combien de demandes ont été faites, Laravel utilise un **compteur temporaire**. À chaque demande, il consulte ce compteur : si la limite n'est pas atteinte, il traite la requête ; sinon, il répond 429. Dans les en-têtes de la réponse 429, `Retry-After` indique le nombre de secondes à attendre.
+
+Ici, chaque compteur est lié à l'**identifiant de l'utilisateur** : si Amina atteint sa limite, Karim garde son propre quota. Une limite **par adresse IP** fonctionnerait autrement : plusieurs personnes utilisant la même adresse pourraient partager le même compteur.
+
+Dans notre TD, Laravel utilise **Valkey** pour conserver les compteurs. Un autre stockage de cache peut aussi être configuré ; Valkey n'est donc pas obligatoire pour comprendre le Rate Limiting. Le compteur est distinct du cache de la liste des documents : le premier compte les requêtes, le second conserve temporairement leur résultat.
+
+Cette limite aide à réduire les abus et la surcharge. L'authentification et le contrôle du propriétaire restent nécessaires : un quota disponible ne donne pas accès aux documents d'une autre personne.
+
 ## 10. Préparer l’exercice
 
 Continuez avec votre travail des trois premières parties ou utilisez leur correction, la branche Laravel `jour4-valkey-cache-documents`. Le présent guide se trouve sur cette branche. La correction de cette quatrième partie sera sur `jour4-rate-limiting-documents`.
